@@ -1,6 +1,6 @@
 import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn} from 'typeorm';
 import {IsIn} from "class-validator";
-import { v4 as uuidv4 } from 'uuid';
+
 
 enum UserRole {
   Kursant = 'kursant',
