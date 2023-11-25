@@ -12,11 +12,11 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
     DatabaseModule,
     UserModule,
     HrModule,
     StudentModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

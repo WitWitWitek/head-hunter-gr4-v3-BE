@@ -46,6 +46,14 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
 
+  async findOneByEmail(email: string): Promise<User> {
+    return this.userEntity.findOne({
+      where: {
+        email,
+      },
+    });
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
