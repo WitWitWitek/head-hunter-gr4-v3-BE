@@ -37,6 +37,16 @@ export class AuthService {
       .json({ role: user.role });
   }
 
+  async signOut(res: Response) {
+    return res
+      .clearCookie('access_token', {
+        secure: true,
+        sameSite: 'none',
+        httpOnly: true,
+      })
+      .json({ message: 'successfuly signed out' });
+  }
+
   async validateUserByEmail(email: string) {
     const user = await this.userService.findOneByEmail(email);
     if (!user) {
