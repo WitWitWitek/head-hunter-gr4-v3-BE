@@ -5,6 +5,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { AccessTokenPayload } from 'src/types';
 import { TokenStrategyName } from './token-strategy-name';
+import { Request } from 'express';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(
@@ -16,7 +17,9 @@ export class AccessTokenStrategy extends PassportStrategy(
     private authService: AuthService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        AccessTokenStrategy.extractJWT,
+      ]),
       secretOrKey: config.get('ACCESS_TOKEN_SECRET'),
     });
   }
@@ -27,5 +30,11 @@ export class AccessTokenStrategy extends PassportStrategy(
       throw new UnauthorizedException();
     }
     return user;
+  }
+
+  private static extractJWT(req: Request): string | null {
+    return req && req.cookies && 'access_token' in req.cookies
+      ? req.cookies?.jwt ?? null
+      : null;
   }
 }

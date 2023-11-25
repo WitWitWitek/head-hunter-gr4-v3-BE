@@ -5,6 +5,7 @@ import { verifyPassword } from 'src/utils';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AccessTokenPayload, UserRole } from 'src/types';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -14,19 +15,26 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async signIn(signInDto: SignInDto) {
+  async signIn(signInDto: SignInDto, res: Response) {
     const { email, password } = signInDto;
+
     const user = await this.validateUserByEmail(email);
+
     const passwordMatch = await verifyPassword(password, user.password);
     if (!passwordMatch) {
       throw new UnauthorizedException();
     }
+
     const access_token = await this.signToken(email, user.role);
 
-    return {
-      role: user.role,
-      access_token,
-    };
+    return res
+      .cookie('access_token', access_token, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+        maxAge: 30 * 60 * 1000,
+      })
+      .json({ role: user.role });
   }
 
   async validateUserByEmail(email: string) {
