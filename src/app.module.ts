@@ -5,12 +5,16 @@ import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './user/user.module';
+import { HrModule } from './hr/hr.module';
+import {StudentModule} from "./student/student.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     UserModule,
+    HrModule,
+    StudentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

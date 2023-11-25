@@ -8,5 +8,6 @@ export default (): TypeOrmModuleOptions => ({
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
   autoLoadEntities: true,
+  logging: true,
   synchronize: true,
 });
