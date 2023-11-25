@@ -16,23 +16,25 @@ export class AuthService {
 
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
-
-    const user = await this.userService.findOneByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
+    const user = await this.validateUserByEmail(email);
     const passwordMatch = await verifyPassword(password, user.password);
     if (!passwordMatch) {
       throw new UnauthorizedException();
     }
-
     const access_token = await this.signToken(email, user.role);
 
     return {
       role: user.role,
       access_token,
     };
+  }
+
+  async validateUserByEmail(email: string) {
+    const user = await this.userService.findOneByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    return user;
   }
 
   async signToken(email: string, userRole: UserRole) {
