@@ -1,12 +1,12 @@
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn} from 'typeorm';
-import {IsIn} from "class-validator";
-
-
-enum UserRole {
-  Kursant = 'kursant',
-  HR = 'hr',
-  Admin = 'admin',
-}
+import { UserRole } from 'src/types';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('user')
 export class User extends BaseEntity {
@@ -30,7 +30,6 @@ export class User extends BaseEntity {
   @Column({
     nullable: false,
     length: 100,
-    default: "",
   })
   password: string;
 
@@ -39,15 +38,13 @@ export class User extends BaseEntity {
   })
   confirmed: boolean;
 
-  @CreateDateColumn({
-    default: () => 'CURRENT_TIMESTAMP',
-  })
+  @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @IsIn(Object.values(UserRole))
+  @Column({ type: 'enum', enum: UserRole })
   role: UserRole;
 
   @Column({
@@ -56,5 +53,4 @@ export class User extends BaseEntity {
     default: null,
   })
   loginToken: string;
-
 }
