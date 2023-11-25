@@ -4,7 +4,7 @@ import { SignInDto } from './dto';
 import { verifyPassword } from 'src/utils';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserRole } from 'src/types';
+import { AccessTokenPayload, UserRole } from 'src/types';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +38,7 @@ export class AuthService {
   }
 
   async signToken(email: string, userRole: UserRole) {
-    const payload = { email, role: userRole };
+    const payload: AccessTokenPayload = { email, role: userRole };
     const secret = this.configService.get('ACCESS_TOKEN_SECRET');
 
     return this.jwtService.signAsync(payload, {
