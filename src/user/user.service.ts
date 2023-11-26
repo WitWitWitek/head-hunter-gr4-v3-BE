@@ -6,12 +6,16 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { hash } from 'bcrypt';
 import { UserRole } from 'src/types';
+import {Student} from "../student/entities/student.entity";
+import {CreateStudentDto} from "../student/dto/create-student.dto";
 
 @Injectable()
 export class UserService {
   private userService: UserService[] = [];
 
-  constructor(@InjectRepository(User) private userEntity: Repository<User>) {}
+  constructor(@InjectRepository(User) private userEntity: Repository<User>,
+            @InjectRepository(Student) private studentEntity: Repository<Student>) {}
+
 
   async create(createUserDto: CreateUserDto, role: UserRole) {
     const hashedPassword = await hash(createUserDto.password, 10);
@@ -20,7 +24,15 @@ export class UserService {
       password: hashedPassword,
       role: role,
     });
-    return `New user with ${role} created.`;
+
+    // console.log('User entity',this.userEntity);
+
+    const newStudent: CreateStudentDto ={
+      email: createUserDto.email,
+    };
+    await this.studentEntity.save(newStudent)
+
+    return `New user with ${role}, created.`;
   }
 
   async createAdmin(createUserDto: CreateUserDto) {

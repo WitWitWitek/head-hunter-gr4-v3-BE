@@ -3,6 +3,7 @@ import { Min, Max, IsInt } from 'class-validator';
 
 @Entity('student')
 export class Student extends BaseEntity {
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
