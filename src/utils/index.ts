@@ -1,1 +1,1 @@
-export * from './passwordHandlers';
+export * from './bcryptHandlers';

@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserRole } from 'src/types';
-import { hashPassword } from 'src/utils';
+import { hashData } from 'src/utils';
 
 @Injectable()
 export class UserService {
@@ -13,7 +13,7 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto, role: UserRole) {
     const { password } = createUserDto;
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashData(password);
     await this.userEntity.save({
       ...createUserDto,
       password: hashedPassword,
@@ -25,7 +25,7 @@ export class UserService {
   async createAdmin(createUserDto: CreateUserDto) {
     const { password, email, username } = createUserDto;
 
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashData(password);
 
     const adminUser = new User();
     adminUser.username = username;
@@ -55,6 +55,17 @@ export class UserService {
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
+  }
+
+  updateLoginToken(id: string, hashedRefreshToken?: string) {
+    return this.userEntity
+      .createQueryBuilder()
+      .update(User)
+      .set({ loginToken: hashedRefreshToken ?? null })
+      .where('id = :id', {
+        id,
+      })
+      .execute();
   }
 
   remove(id: number) {

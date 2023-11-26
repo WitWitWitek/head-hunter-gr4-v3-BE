@@ -21,9 +21,10 @@ export class AuthController {
     return this.authService.signIn(dto, res);
   }
 
+  @UseGuards(RefreshTokenGuard)
   @Get('sign-out')
-  signOut(@Res() res: Response) {
-    return this.authService.signOut(res);
+  signOut(@Req() req: Request, @Res() res: Response) {
+    return this.authService.signOut(req, res);
   }
 
   @UseGuards(RefreshTokenGuard)

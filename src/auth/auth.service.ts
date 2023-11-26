@@ -1,7 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { SignInDto } from './dto';
-import { verifyPassword } from 'src/utils';
+import { hashData, verifyHashedData } from 'src/utils';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthTokenPayload, TokenName, UserRole } from 'src/types';
@@ -21,9 +25,14 @@ export class AuthService {
 
     const user = await this.validateUserByEmail(email);
 
-    const passwordMatch = await verifyPassword(password, user.password);
+    const passwordMatch = await verifyHashedData(password, user.password);
+
     if (!passwordMatch) {
       throw new UnauthorizedException();
+    }
+
+    if (user.loginToken) {
+      throw new ForbiddenException('User already logged in');
     }
 
     const access_token = await this.signToken(
@@ -36,7 +45,7 @@ export class AuthService {
       user.role,
       TokenName.refresh_token,
     );
-
+    this.updateHashLoginToken(user.id, refresh_token);
     return res
       .cookie(TokenName.refresh_token, refresh_token, {
         httpOnly: true,
@@ -59,7 +68,9 @@ export class AuthService {
     };
   }
 
-  async signOut(res: Response) {
+  async signOut(req: Request, res: Response) {
+    const { id } = req.user as User;
+    await this.updateHashLoginToken(id);
     return res
       .clearCookie(TokenName.refresh_token, {
         secure: true,
@@ -67,6 +78,10 @@ export class AuthService {
         httpOnly: true,
       })
       .json({ message: 'user has successfuly signed out' });
+  }
+
+  logout() {
+    console.log('SPRAWDZ TO');
   }
 
   async validateUserByEmail(email: string) {
@@ -77,7 +92,11 @@ export class AuthService {
     return user;
   }
 
-  async signToken(email: string, userRole: UserRole, tokenName: TokenName) {
+  private async signToken(
+    email: string,
+    userRole: UserRole,
+    tokenName: TokenName,
+  ) {
     const payload: AuthTokenPayload = { email, role: userRole };
     const secret = this.configService.get(
       tokenName === TokenName.access_token
@@ -86,8 +105,16 @@ export class AuthService {
     );
 
     return this.jwtService.signAsync(payload, {
-      expiresIn: tokenName === TokenName.access_token ? '30m' : '12h',
+      expiresIn: tokenName === TokenName.access_token ? '15m' : '12h',
       secret,
     });
+  }
+
+  private async updateHashLoginToken(userId: string, refreshToken?: string) {
+    if (refreshToken) {
+      const hashedToken = await hashData(refreshToken);
+      return this.userService.updateLoginToken(userId, hashedToken);
+    }
+    return this.userService.updateLoginToken(userId);
   }
 }
