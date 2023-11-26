@@ -64,4 +64,8 @@ export class Student extends BaseEntity {
   })
   status: StudentStatus;
 
+  @Column({
+    default: false,
+  })
+  isActive: boolean;
 }
