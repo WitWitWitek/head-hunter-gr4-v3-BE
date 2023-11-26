@@ -1,7 +1,16 @@
-import { Controller, Post, Body, Res, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  Req,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto';
-import { Response } from 'express';
+import { Response, Request } from 'express';
+import { RefreshTokenGuard } from './guard/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -15,5 +24,11 @@ export class AuthController {
   @Get('sign-out')
   signOut(@Res() res: Response) {
     return this.authService.signOut(res);
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @Get('refresh')
+  refreshToken(@Req() req: Request) {
+    return this.authService.refresh(req);
   }
 }

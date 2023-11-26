@@ -4,8 +4,9 @@ import { SignInDto } from './dto';
 import { verifyPassword } from 'src/utils';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { AccessTokenPayload, UserRole } from 'src/types';
-import { Response } from 'express';
+import { AuthTokenPayload, TokenName, UserRole } from 'src/types';
+import { Request, Response } from 'express';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -25,26 +26,47 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const access_token = await this.signToken(email, user.role);
+    const access_token = await this.signToken(
+      email,
+      user.role,
+      TokenName.access_token,
+    );
+    const refresh_token = await this.signToken(
+      email,
+      user.role,
+      TokenName.refresh_token,
+    );
 
     return res
-      .cookie('access_token', access_token, {
+      .cookie(TokenName.refresh_token, refresh_token, {
         httpOnly: true,
         sameSite: 'none',
         secure: true,
-        maxAge: 30 * 60 * 1000,
+        maxAge: 12 * 60 * 60 * 1000,
       })
-      .json({ role: user.role });
+      .json({ role: user.role, access_token });
+  }
+
+  async refresh(req: Request) {
+    const { email, role } = req.user as User;
+    const access_token = await this.signToken(
+      email,
+      role,
+      TokenName.access_token,
+    );
+    return {
+      access_token,
+    };
   }
 
   async signOut(res: Response) {
     return res
-      .clearCookie('access_token', {
+      .clearCookie(TokenName.refresh_token, {
         secure: true,
         sameSite: 'none',
         httpOnly: true,
       })
-      .json({ message: 'successfuly signed out' });
+      .json({ message: 'user has successfuly signed out' });
   }
 
   async validateUserByEmail(email: string) {
@@ -55,12 +77,16 @@ export class AuthService {
     return user;
   }
 
-  async signToken(email: string, userRole: UserRole) {
-    const payload: AccessTokenPayload = { email, role: userRole };
-    const secret = this.configService.get('ACCESS_TOKEN_SECRET');
+  async signToken(email: string, userRole: UserRole, tokenName: TokenName) {
+    const payload: AuthTokenPayload = { email, role: userRole };
+    const secret = this.configService.get(
+      tokenName === TokenName.access_token
+        ? 'ACCESS_TOKEN_SECRET'
+        : 'REFRESH_TOKEN_SECRET',
+    );
 
     return this.jwtService.signAsync(payload, {
-      expiresIn: '30m',
+      expiresIn: tokenName === TokenName.access_token ? '30m' : '12h',
       secret,
     });
   }

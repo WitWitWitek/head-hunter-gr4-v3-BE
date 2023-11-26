@@ -4,19 +4,22 @@ import { ConfigService } from '@nestjs/config';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { AuthTokenPayload, TokenStrategyName } from 'src/types';
+import { Request } from 'express';
 
 @Injectable()
-export class AccessTokenStrategy extends PassportStrategy(
+export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
-  TokenStrategyName.accessToken,
+  TokenStrategyName.refreshToken,
 ) {
   constructor(
     private config: ConfigService,
     private authService: AuthService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: config.get('ACCESS_TOKEN_SECRET'),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        RefreshTokenStrategy.extractJWT,
+      ]),
+      secretOrKey: config.get('REFRESH_TOKEN_SECRET'),
     });
   }
 
@@ -26,5 +29,11 @@ export class AccessTokenStrategy extends PassportStrategy(
       throw new UnauthorizedException();
     }
     return user;
+  }
+
+  private static extractJWT(req: Request): string | null {
+    return req && req.cookies && 'refresh_token' in req.cookies
+      ? req.cookies?.['refresh_token'] ?? null
+      : null;
   }
 }
