@@ -1,6 +1,12 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Min, Max, IsInt } from 'class-validator';
 
+enum StudentStatus {
+  Available = 'Dostępny',
+  InInterview = 'W trakcie rozmowy',
+  Employed = 'Zatrudniony',
+}
+
 @Entity('student')
 export class Student extends BaseEntity {
 
@@ -50,4 +56,12 @@ export class Student extends BaseEntity {
     nullable: true,
   })
   bonusProjectUrls: string[];
+
+  @Column({
+    type: 'enum',
+    enum: StudentStatus,
+    default: StudentStatus.Available,
+  })
+  status: StudentStatus;
+
 }
