@@ -8,6 +8,8 @@ import { UserModule } from './user/user.module';
 import { HrModule } from './hr/hr.module';
 import { StudentModule } from './student/student.module';
 import { AuthModule } from './auth/auth.module';
+import { APP_FILTER } from '@nestjs/core';
+import { RolesGuard } from './shared/guards/roles.guard';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { AuthModule } from './auth/auth.module';
     StudentModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_FILTER, useClass: RolesGuard }],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}

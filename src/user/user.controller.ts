@@ -13,6 +13,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from 'src/types';
 import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('user')
 export class UserController {
@@ -33,6 +35,8 @@ export class UserController {
     return this.userService.createAdmin(createUserDto);
   }
 
+  @Roles(UserRole.Admin)
+  @UseGuards(RolesGuard)
   @UseGuards(AccessTokenGuard)
   @Get('/me')
   findAll() {
