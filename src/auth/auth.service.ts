@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { SignInDto } from './dto';
 import { hashData, verifyHashedData } from 'src/utils';
@@ -31,10 +27,6 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    if (user.loginToken) {
-      throw new ForbiddenException('User already logged in');
-    }
-
     const access_token = await this.signToken(
       email,
       user.role,
@@ -45,7 +37,9 @@ export class AuthService {
       user.role,
       TokenName.refresh_token,
     );
-    this.updateHashLoginToken(user.id, refresh_token);
+
+    await this.updateHashLoginToken(user.id, refresh_token);
+
     return res
       .cookie(TokenName.refresh_token, refresh_token, {
         httpOnly: true,
@@ -78,10 +72,6 @@ export class AuthService {
         httpOnly: true,
       })
       .json({ message: 'user has successfuly signed out' });
-  }
-
-  logout() {
-    console.log('SPRAWDZ TO');
   }
 
   async validateUserByEmail(email: string) {
