@@ -6,11 +6,13 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './user/user.module';
 import { HrModule } from './hr/hr.module';
-import {StudentModule} from "./student/student.module";
+import { StudentModule } from './student/student.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
     DatabaseModule,
     UserModule,
     HrModule,
