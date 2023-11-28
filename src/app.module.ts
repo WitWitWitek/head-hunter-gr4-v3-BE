@@ -10,6 +10,7 @@ import { StudentModule } from './student/student.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_FILTER } from '@nestjs/core';
 import { RolesGuard } from './shared/guards/roles.guard';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { RolesGuard } from './shared/guards/roles.guard';
     UserModule,
     HrModule,
     StudentModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_FILTER, useClass: RolesGuard }],
