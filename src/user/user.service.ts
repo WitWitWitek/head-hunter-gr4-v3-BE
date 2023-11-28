@@ -7,32 +7,45 @@ import { Repository } from 'typeorm';
 import { hash } from 'bcrypt';
 import { UserRole } from 'src/types';
 import {Student} from "../student/entities/student.entity";
-import {CreateStudentDto} from "../student/dto/create-student.dto";
+import {CreateStudentDto} from "./dto/create-student.dto";
+
 
 @Injectable()
 export class UserService {
   private userService: UserService[] = [];
 
   constructor(@InjectRepository(User) private userEntity: Repository<User>,
-            @InjectRepository(Student) private studentEntity: Repository<Student>) {}
+              @InjectRepository(Student) private studentEntity: Repository<Student>) {
+  }
 
 
-  async create(createUserDto: CreateUserDto, role: UserRole) {
-    const hashedPassword = await hash(createUserDto.password, 10);
-    await this.userEntity.save({
-      ...createUserDto,
-      password: hashedPassword,
+  async createStudent(newStudents: CreateStudentDto[], role: UserRole) {
+
+      const filteredStudents: CreateStudentDto[] = await Promise.all(newStudents.map(async (student: CreateStudentDto): Promise<CreateStudentDto> => {
+      const email: string = student.email;
+      const existingStudent:Student = await this.studentEntity.findOne({
+        where: { email }
+      });
+
+      if (!existingStudent) {
+        // Nowy, dopisujemy do bazy
+        // await this.studentEntity.save(student);
+        return student;
+      }
+      return null;
+    }));
+
+    const studentsToAdd:CreateStudentDto[] = filteredStudents.filter((student: CreateStudentDto): boolean => student !== null);
+    await this.studentEntity.save(studentsToAdd);
+    const userStudentsToAdd = studentsToAdd.map(student => ({
+      email: student.email,
       role: role,
-    });
+    }));
 
-    // console.log('User entity',this.userEntity);
+    console.log("studentToAd", studentsToAdd.length);
+    console.log("userStudentsToAdd", userStudentsToAdd.length);
 
-    const newStudent: CreateStudentDto ={
-      email: createUserDto.email,
-    };
-    await this.studentEntity.save(newStudent)
-
-    return `New user with ${role}, created.`;
+    await this.userEntity.save(userStudentsToAdd);
   }
 
   async createAdmin(createUserDto: CreateUserDto) {
@@ -41,7 +54,7 @@ export class UserService {
     const hashedPassword = await hash(password, 10);
 
     const adminUser = new User();
-    adminUser.username = username;
+    //adminUser.username = username;  // #todo do czego to potrzebne ?
     adminUser.password = hashedPassword;
     adminUser.email = email;
     adminUser.role = UserRole.Admin;

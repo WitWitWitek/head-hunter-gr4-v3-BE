@@ -4,6 +4,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "../user/entities/user.entity";
 import {Repository} from "typeorm";
 import {Student} from "./entities/student.entity";
+import {TestCreateStudentDto} from "./dto/create-student.dto";
 
 @Injectable()
 export class StudentService {
@@ -13,7 +14,12 @@ export class StudentService {
               @InjectRepository(User) private userEntity: Repository<User>,
   ) {}
 
-    findAll() {
+  async create() {
+    return `This action returns all student`;
+  }
+
+
+  findAll() {
     return `This action returns all student`;
   }
 
@@ -37,7 +43,7 @@ export class StudentService {
     existingStudent.courseEngagement = updateStudentDto.courseEngagement;
     existingStudent.projectDegree = updateStudentDto.projectDegree;
     existingStudent.teamProjectDegree= updateStudentDto.teamProjectDegree;
-    existingStudent.bonusProjectUrls = updateStudentDto.bonusProjectUrls;
+    // existingStudent.bonusProjectUrls = updateStudentDto.bonusProjectUrls; // dobrze działa dla []
     await this.studentEntity.save(existingStudent);
 
     return `This action updates a #${id} student`;

@@ -1,5 +1,4 @@
-export class TestCreateStudentDto {
-    id: string;
+export class CreateStudentDto {
     email: string;
     courseCompletion: number;
     courseEngagement: number;
