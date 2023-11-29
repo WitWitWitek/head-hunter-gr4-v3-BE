@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import {CreateUserDto, CreateUserStudentToAdd} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -18,34 +18,28 @@ export class UserService {
               @InjectRepository(Student) private studentEntity: Repository<Student>) {
   }
 
-
   async createStudent(newStudents: CreateStudentDto[], role: UserRole) {
 
       const filteredStudents: CreateStudentDto[] = await Promise.all(newStudents.map(async (student: CreateStudentDto): Promise<CreateStudentDto> => {
-      const email: string = student.email;
-      const existingStudent:Student = await this.studentEntity.findOne({
+        const email: string = student.email;
+        const existingStudent:Student = await this.studentEntity.findOne({
         where: { email }
-      });
-
-      if (!existingStudent) {
-        // Nowy, dopisujemy do bazy
-        // await this.studentEntity.save(student);
+        });
+        if (!existingStudent && email.includes('@')) {
         return student;
-      }
-      return null;
+        }
+        return null;
     }));
 
     const studentsToAdd:CreateStudentDto[] = filteredStudents.filter((student: CreateStudentDto): boolean => student !== null);
     await this.studentEntity.save(studentsToAdd);
-    const userStudentsToAdd = studentsToAdd.map(student => ({
+    const userStudentsToAdd: CreateUserStudentToAdd[] = studentsToAdd.map(student => ({
       email: student.email,
       role: role,
     }));
 
-    console.log("studentToAd", studentsToAdd.length);
-    console.log("userStudentsToAdd", userStudentsToAdd.length);
-
     await this.userEntity.save(userStudentsToAdd);
+    return `Added ${studentsToAdd.length} of ${newStudents.length}.`
   }
 
   async createAdmin(createUserDto: CreateUserDto) {
