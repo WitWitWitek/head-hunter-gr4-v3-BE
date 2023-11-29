@@ -11,8 +11,12 @@ export class MailService {
 
     await this.mailerService.sendMail({
       to: user.email,
-      subject: 'Welcome to Head Hunter App! Confirm your account and email',
-      html: `welcome! ${url}`,
+      subject: 'Welcome to Head Hunter! Confirm your account and email',
+      template: './confirmation',
+      context: {
+        username: user.username,
+        link: url,
+      },
     });
   }
 }
