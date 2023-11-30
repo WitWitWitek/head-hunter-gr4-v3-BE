@@ -6,19 +6,24 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserRole } from 'src/types';
 import { hashData } from 'src/utils';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private userEntity: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private userEntity: Repository<User>,
+    private mailService: MailService,
+  ) {}
 
   async create(createUserDto: CreateUserDto, role: UserRole) {
     const { password } = createUserDto;
     const hashedPassword = await hashData(password);
-    await this.userEntity.save({
+    const user = await this.userEntity.save({
       ...createUserDto,
       password: hashedPassword,
       role: role,
     });
+    await this.mailService.sendUserConfirmation(user);
     return `New user with ${role} created.`;
   }
 
