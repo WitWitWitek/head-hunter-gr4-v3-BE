@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import nodemailerConfig from 'src/config/nodemailer.config';
+import { TokenModule } from 'src/token/token.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import nodemailerConfig from 'src/config/nodemailer.config';
       useFactory: nodemailerConfig,
       inject: [ConfigService],
     }),
+    forwardRef(() => TokenModule),
   ],
   providers: [MailService],
   exports: [MailService],
