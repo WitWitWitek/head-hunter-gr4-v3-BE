@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { APP_FILTER } from '@nestjs/core';
 import { RolesGuard } from './shared/guards/roles.guard';
 import { MailModule } from './mail/mail.module';
+import { TokenModule } from './token/token.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MailModule } from './mail/mail.module';
     HrModule,
     StudentModule,
     MailModule,
+    TokenModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_FILTER, useClass: RolesGuard }],

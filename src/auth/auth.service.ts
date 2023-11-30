@@ -2,18 +2,16 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { SignInDto } from './dto';
 import { hashData, verifyHashedData } from 'src/utils';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { AuthTokenPayload, TokenName, UserRole } from 'src/types';
+import { TokenName } from 'src/types';
 import { Request, Response } from 'express';
 import { User } from 'src/user/entities/user.entity';
+import { TokenService } from 'src/token/token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private jwtService: JwtService,
-    private configService: ConfigService,
+    private tokenService: TokenService,
   ) {}
 
   async signIn(signInDto: SignInDto, res: Response) {
@@ -27,12 +25,12 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const access_token = await this.signToken(
+    const access_token = await this.tokenService.signToken(
       email,
       user.role,
       TokenName.access_token,
     );
-    const refresh_token = await this.signToken(
+    const refresh_token = await this.tokenService.signToken(
       email,
       user.role,
       TokenName.refresh_token,
@@ -52,7 +50,7 @@ export class AuthService {
 
   async refresh(req: Request) {
     const { email, role } = req.user as User;
-    const access_token = await this.signToken(
+    const access_token = await this.tokenService.signToken(
       email,
       role,
       TokenName.access_token,
@@ -80,24 +78,6 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     return user;
-  }
-
-  private async signToken(
-    email: string,
-    userRole: UserRole,
-    tokenName: TokenName,
-  ) {
-    const payload: AuthTokenPayload = { email, role: userRole };
-    const secret = this.configService.get(
-      tokenName === TokenName.access_token
-        ? 'ACCESS_TOKEN_SECRET'
-        : 'REFRESH_TOKEN_SECRET',
-    );
-
-    return this.jwtService.signAsync(payload, {
-      expiresIn: tokenName === TokenName.access_token ? '15m' : '12h',
-      secret,
-    });
   }
 
   private async updateHashLoginToken(userId: string, refreshToken?: string) {
