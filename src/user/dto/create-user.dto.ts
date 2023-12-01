@@ -6,7 +6,3 @@ export class CreateUserDto {
   password: string;
 }
 
-export class CreateUserStudentToAdd {
-  email: string;
-  role: UserRole;
-}

@@ -7,14 +7,17 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {Student} from "./entities/student.entity";
 import {User} from "../user/entities/user.entity";
 import {UserModule} from "../user/user.module";
+import {Profile} from "./entities/profile.entity";
+
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Student, User]),
+  imports: [TypeOrmModule.forFeature([Student, User, Profile]),
       forwardRef(() => StudentModule),
       forwardRef(() => UserModule),
 
+
   ],
-  controllers: [StudentController, UserController],
-  providers: [StudentService, UserService],
+  controllers: [StudentController, UserController, ],
+  providers: [StudentService, UserService, ],
 })
 export class StudentModule {}

@@ -1,5 +1,7 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn} from 'typeorm';
 import { Min, Max, IsInt } from 'class-validator';
+import {Profile} from "./profile.entity";
+
 
 enum StudentStatus {
   Available = 'Dostępny',
@@ -68,4 +70,9 @@ export class Student extends BaseEntity {
     default: false,
   })
   isActive: boolean;
+
+  @OneToOne(type => Profile, profile => profile.student, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  profile: Profile;
+
 }

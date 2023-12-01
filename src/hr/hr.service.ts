@@ -1,9 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { CreateHrDto } from './dto/create-hr.dto';
 import { UpdateHrDto } from './dto/update-hr.dto';
+import {InjectRepository} from "@nestjs/typeorm";
+import {User} from "../user/entities/user.entity";
+import {Repository} from "typeorm";
+import {Student} from "../student/entities/student.entity";
+
 
 @Injectable()
 export class HrService {
+  private hrService: HrService[] = [];
+
+  constructor(@InjectRepository(User) private userEntity: Repository<User>,
+              @InjectRepository(Student) private studentEntity: Repository<Student>,
+  ) {}
+
   create(createHrDto: CreateHrDto) {
     return 'This action adds a new hr';
   }

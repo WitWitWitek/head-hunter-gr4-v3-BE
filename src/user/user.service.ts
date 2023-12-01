@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import {CreateUserDto, CreateUserStudentToAdd} from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { hash } from 'bcrypt';
-import { UserRole } from 'src/types';
 import {Student} from "../student/entities/student.entity";
-import {CreateStudentDto} from "./dto/create-student.dto";
+import {CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import {CreateStudentDto, CreateUserStudentToAdd, UserRole} from 'src/types';
 
 
 @Injectable()
@@ -15,21 +14,23 @@ export class UserService {
   private userService: UserService[] = [];
 
   constructor(@InjectRepository(User) private userEntity: Repository<User>,
-              @InjectRepository(Student) private studentEntity: Repository<Student>) {
-  }
+              @InjectRepository(Student) private studentEntity: Repository<Student>,
+              ) {}
 
-  async createStudent(newStudents: CreateStudentDto[], role: UserRole) {
+  async createStudent(newStudents: CreateStudentDto[], role: UserRole):Promise<string> {
 
-      const filteredStudents: CreateStudentDto[] = await Promise.all(newStudents.map(async (student: CreateStudentDto): Promise<CreateStudentDto> => {
-        const email: string = student.email;
-        const existingStudent:Student = await this.studentEntity.findOne({
-        where: { email }
-        });
-        if (!existingStudent && email.includes('@')) {
-        return student;
-        }
-        return null;
-    }));
+    const filteredStudents: CreateStudentDto[] = await Promise.all(
+        (await Promise.all(newStudents.map(async (student: CreateStudentDto):Promise<CreateStudentDto> => {
+          const email: string = student.email;
+          const existingStudent: Student = await this.studentEntity.findOne({
+            where: { email },
+          });
+          if (!existingStudent && email.includes('@')) {
+            return student;
+          }
+          return null;
+        }))).filter((student: CreateStudentDto) => student !== null) as CreateStudentDto[]
+    );
 
     const studentsToAdd:CreateStudentDto[] = filteredStudents.filter((student: CreateStudentDto): boolean => student !== null);
     await this.studentEntity.save(studentsToAdd);
@@ -37,7 +38,6 @@ export class UserService {
       email: student.email,
       role: role,
     }));
-
     await this.userEntity.save(userStudentsToAdd);
     return `Added ${studentsToAdd.length} of ${newStudents.length}.`
   }

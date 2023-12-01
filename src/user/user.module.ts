@@ -7,14 +7,15 @@ import {StudentController} from "../student/student.controller";
 import {StudentService} from "../student/student.service";
 import {StudentModule} from "../student/student.module";
 import {Student} from "../student/entities/student.entity";
+import {Profile} from "../student/entities/profile.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User,Student]),
+  imports: [TypeOrmModule.forFeature([User,Student, Profile]),
       forwardRef(() => UserModule),
-      forwardRef(() => UserModule),
+      forwardRef(() => StudentModule),
 
   ],
-  controllers: [UserController, StudentController],
-  providers: [UserService, StudentService],
+  controllers: [UserController, StudentController,],
+  providers: [UserService, StudentService,],
 })
 export class UserModule {}

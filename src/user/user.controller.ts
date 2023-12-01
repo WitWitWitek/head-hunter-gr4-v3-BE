@@ -11,7 +11,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from 'src/types';
-import {CreateStudentDto} from "./dto/create-student.dto";
+import {CreateStudentDto} from "../student/dto/create-student.dto";
 
 @Controller('user')
 export class UserController {
@@ -22,9 +22,10 @@ export class UserController {
     return this.userService.createStudent(createStudentDto, UserRole.Student);
   }
 
+
   // @Post('/add-hr')
-  // createHr(@Body() createUserDto: CreateUserDto) {
-  //   return this.userService.create(createUserDto, UserRole.HR);
+  // createHr(@Body() createUserDto: CreateUserDto[]) {
+  //   return this.userService.createStudent(createUserDto, UserRole.HR);
   // }
 
   @Post('/add-admin')
