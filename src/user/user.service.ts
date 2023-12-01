@@ -25,13 +25,24 @@ export class UserService {
           const existingStudent: Student = await this.studentEntity.findOne({
             where: { email },
           });
-          if (!existingStudent && email.includes('@')) {
+
+          function isCourseGrade(value: number): boolean {
+            return value >= 0 && value <= 5;
+          }
+
+          if (!existingStudent &&
+              email.includes('@') &&
+              isCourseGrade(student.courseCompletion) &&
+              isCourseGrade(student.courseEngagement) &&
+              isCourseGrade(student.projectDegree) &&
+              isCourseGrade(student.teamProjectDegree)
+              // && githubRepoUrl
+          ) {
             return student;
           }
           return null;
         }))).filter((student: CreateStudentDto) => student !== null) as CreateStudentDto[]
     );
-
     const studentsToAdd:CreateStudentDto[] = filteredStudents.filter((student: CreateStudentDto): boolean => student !== null);
     await this.studentEntity.save(studentsToAdd);
     const userStudentsToAdd: CreateUserStudentToAdd[] = studentsToAdd.map(student => ({

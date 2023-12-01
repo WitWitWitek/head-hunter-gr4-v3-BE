@@ -3,7 +3,7 @@ import {ExpectedContractType, ExpectedTypeWork} from "../entities/profile.entity
 //export class UpdateStudentDto extends PartialType(CreateStudentDto) {
 
 export type UpdatetudentProfileDto = {
-    tel: string;
+    phone: string;
     firstName: string;
     lastName: string;
     githubUsername: string;

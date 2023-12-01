@@ -3,7 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "../user/entities/user.entity";
 import {Repository} from "typeorm";
 import {Student} from "./entities/student.entity";
-import {Profile} from "./entities/profile.entity";
+import {ExpectedContractType, ExpectedTypeWork, Profile} from "./entities/profile.entity";
 import {UpdatetudentProfileDto} from "./dto/update-student.dto";
 
 @Injectable()
@@ -37,10 +37,27 @@ export class StudentService {
       throw new Error(`Nie mamy w bazie studenta o id: ${studentId}.`);
     }
 
-    const { tel, firstName, lastName, githubUsername, portfolioUrls, projectUrls, bio, expectedTypeWork, targetWorkCity, expectedContractType, expectedSalary, canTakeApprenticeship, monthsOfCommercialExp, education, workExperience, courses } = updateProfileDto;
+    const { phone, firstName, lastName, githubUsername, portfolioUrls, projectUrls, bio, expectedTypeWork, targetWorkCity, expectedContractType, expectedSalary, canTakeApprenticeship, monthsOfCommercialExp, education, workExperience, courses } = updateProfileDto;
+    const adjustedExpectedSalary = expectedSalary > 0 ? expectedSalary : 0;
+    const adjustedMonthsOfExp: number = monthsOfCommercialExp > 0 ? monthsOfCommercialExp : 0;
+    function isExpectedTypeWork(value: string): boolean {
+      return Object.values(ExpectedTypeWork).includes(value as ExpectedTypeWork);
+    }
+    function isExpectedContractType(value: string): boolean {
+      return Object.values(ExpectedContractType).includes(value as ExpectedContractType);
+    }
+
+    if (
+        firstName === "" || lastName === "" ||
+        !isExpectedTypeWork(expectedTypeWork) ||
+        !isExpectedContractType(expectedContractType)
+    ) {
+      return
+    }
+
     await this.profileEntity.save({
       ...existingProfile,
-      tel,
+      phone,
       firstName,
       lastName,
       githubUsername,
@@ -50,13 +67,14 @@ export class StudentService {
       expectedTypeWork,
       targetWorkCity,
       expectedContractType,
-      expectedSalary,
+      expectedSalary: adjustedExpectedSalary,
       canTakeApprenticeship,
-      monthsOfCommercialExp,
+      monthsOfCommercialExp: adjustedMonthsOfExp,
       education,
       workExperience,
       courses,
     });
+
     await this.studentEntity.update({ id: existingProfile.id }, { isActive: true });
     return updateProfileDto;
   }

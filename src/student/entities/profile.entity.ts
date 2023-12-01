@@ -3,7 +3,7 @@ import {IsInt, Min} from "class-validator";
 import {Student} from "./student.entity";
 
 export enum ExpectedTypeWork {
-    OnSite = ' Na miejscu',
+    OnSite = 'Na miejscu',
     Relocation = 'Gotowość do przeprowadzki',
     Remote = 'Wyłącznie zdalnie',
     Hybrid = 'Hybrydowo',
@@ -33,7 +33,7 @@ export class Profile {
     @Column({
         nullable: true
     })
-    tel: string;
+    phone: string;
 
     @Column({
         nullable: false,
@@ -88,7 +88,7 @@ export class Profile {
     @Column({
         nullable: true
     })
-    expectedSalary: number;
+    expectedSalary: number | null;
 
     @Column({
         default: false
