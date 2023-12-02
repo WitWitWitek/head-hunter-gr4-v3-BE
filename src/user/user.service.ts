@@ -8,12 +8,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateStudentDto, CreateUserStudentToAdd, UserRole } from 'src/types';
 import { In } from 'typeorm';
+import { UserRole } from 'src/types';
+import { hashData } from 'src/utils';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userEntity: Repository<User>,
     @InjectRepository(Student) private studentEntity: Repository<Student>,
+    private mailService: MailService,
   ) {}
 
   async createStudent(
@@ -41,6 +45,8 @@ export class UserService {
         role: role,
       }),
     );
+
+    // await this.mailService.sendUserConfirmation(user);
     await this.userEntity.save(userStudentsToAdd);
     return `Added ${studentsToAdd.length} of ${students.length}.`;
   }
@@ -48,7 +54,7 @@ export class UserService {
   async createAdmin(createUserDto: CreateUserDto) {
     const { password, email } = createUserDto;
 
-    const hashedPassword = await hash(password, 10);
+    const hashedPassword = await hashData(password);
 
     const adminUser = new User();
     adminUser.password = hashedPassword;
@@ -60,15 +66,34 @@ export class UserService {
   }
 
   findAll() {
-    return `This action returns all user`;
+    return this.userEntity.find();
   }
 
   findOne(id: number) {
     return `This action returns a #${id} user`;
   }
 
+  async findOneByEmail(email: string): Promise<User> {
+    return this.userEntity.findOne({
+      where: {
+        email,
+      },
+    });
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
+  }
+
+  updateLoginToken(id: string, hashedRefreshToken?: string) {
+    return this.userEntity
+      .createQueryBuilder()
+      .update(User)
+      .set({ loginToken: hashedRefreshToken ?? null })
+      .where('id = :id', {
+        id,
+      })
+      .execute();
   }
 
   remove(id: number) {

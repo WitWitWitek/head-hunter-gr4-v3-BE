@@ -6,12 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from 'src/types';
 import { CreateStudentDto } from '../student/dto/create-student.dto';
+import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('user')
 export class UserController {
@@ -32,7 +36,10 @@ export class UserController {
     return this.userService.createAdmin(createUserDto);
   }
 
-  @Get()
+  @Roles(UserRole.Admin)
+  @UseGuards(RolesGuard)
+  @UseGuards(AccessTokenGuard)
+  @Get('/me')
   findAll() {
     return this.userService.findAll();
   }

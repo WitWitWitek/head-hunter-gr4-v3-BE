@@ -8,14 +8,15 @@ import {StudentService} from "../student/student.service";
 import {StudentModule} from "../student/student.module";
 import {Student} from "../student/entities/student.entity";
 import {Profile} from "../student/entities/profile.entity";
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User,Student, Profile]),
       forwardRef(() => UserModule),
       forwardRef(() => StudentModule),
-
-  ],
-  controllers: [UserController, StudentController,],
-  providers: [UserService, StudentService,],
+      MailModule],
+  controllers: [UserController, StudentController],
+  providers: [UserService, StudentService],
+  exports: [UserService],
 })
 export class UserModule {}
