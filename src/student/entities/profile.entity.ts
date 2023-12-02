@@ -7,25 +7,15 @@ import {
 } from 'typeorm';
 import { IsInt, Min } from 'class-validator';
 import { Student } from './student.entity';
-
-export enum ExpectedTypeWork {
-  OnSite = 'Na miejscu',
-  Relocation = 'Gotowość do przeprowadzki',
-  Remote = 'Wyłącznie zdalnie',
-  Hybrid = 'Hybrydowo',
-  Any = 'Bez znaczenia',
-}
-
-export enum ExpectedContractType {
-  UoP = 'UoP',
-  B2B = 'B2B',
-  UZ_UoD = 'UZ/UoD',
-  Any = 'Brak preferencji',
-}
+import {
+  ExpectedTypeWork,
+  ExpectedContractType,
+  StudentProfile,
+} from 'src/types';
 
 @Entity('profile')
 @Unique(['email', 'githubUsername'])
-export class Profile {
+export class Profile implements StudentProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -125,7 +115,6 @@ export class Profile {
   })
   courses: string;
 
-  // Relacja z użytkownikiem (OneToOne)
-  @OneToOne((type) => Student, (student) => student.profile)
+  @OneToOne(() => Student, (student) => student.profile)
   student: Student;
 }
