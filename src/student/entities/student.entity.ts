@@ -76,7 +76,7 @@ export class Student extends BaseEntity {
   })
   isActive: boolean;
 
-  @OneToOne((type) => Profile, (profile) => profile.student, {
+  @OneToOne(() => Profile, (profile) => profile.student, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()

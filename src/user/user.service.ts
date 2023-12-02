@@ -20,7 +20,6 @@ export class UserService {
     newStudents: CreateStudentDto,
     role: UserRole,
   ): Promise<string> {
-    console.log(newStudents);
     const { students } = newStudents;
     const emails = students.map((student) => student.email);
     const existingStudents = await this.studentEntity.find({
@@ -47,12 +46,11 @@ export class UserService {
   }
 
   async createAdmin(createUserDto: CreateUserDto) {
-    const { password, email, username } = createUserDto;
+    const { password, email } = createUserDto;
 
     const hashedPassword = await hash(password, 10);
 
     const adminUser = new User();
-    //adminUser.username = username;  // #todo do czego to potrzebne ?
     adminUser.password = hashedPassword;
     adminUser.email = email;
     adminUser.role = UserRole.Admin;

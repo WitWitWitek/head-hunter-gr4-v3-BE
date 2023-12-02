@@ -18,11 +18,12 @@ export class UpdatetudentProfileDto implements StudentProfile {
   projectUrls: string[];
   bio: string;
 
-  @IsEnum({ enum: ExpectedTypeWork })
+  @IsEnum(ExpectedTypeWork)
   expectedTypeWork: ExpectedTypeWork;
+
   targetWorkCity: string;
 
-  @IsEnum({ enum: ExpectedContractType })
+  @IsEnum(ExpectedContractType)
   expectedContractType: ExpectedContractType;
 
   @Min(0)

@@ -28,7 +28,7 @@ export class User extends BaseEntity {
   email: string;
 
   @Column({
-    nullable: true, // #todo faslse
+    nullable: true,
     length: 100,
   })
   password: string;
@@ -49,7 +49,6 @@ export class User extends BaseEntity {
 
   @Column({
     nullable: true,
-    // unique: true,
     default: null,
   })
   loginToken: string;

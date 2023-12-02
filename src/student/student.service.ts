@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -29,18 +29,37 @@ export class StudentService {
     const student: Student = await this.studentEntity.findOne({
       where: { id: studentId },
     });
-
     if (!student) {
-      throw new Error(`Nie mamy w bazie studenta o id: ${studentId}.`);
+      throw new BadRequestException(
+        `Nie mamy w bazie studenta o id: ${studentId}.`,
+      );
     }
 
-    const profile = new Profile();
-    profile.student = student;
+    const existingProfile: Profile = await this.profileEntity.findOne({
+      where: [
+        { githubUsername: updateProfileDto.githubUsername },
+        { email: student.email },
+      ],
+    });
 
-    console.log(Object.keys(updateProfileDto));
+    const profile = new Profile();
+    if (existingProfile) {
+      for (const key in updateProfileDto) {
+        existingProfile[key] = updateProfileDto[key];
+      }
+      this.profileEntity.save(existingProfile);
+    } else {
+      profile.student = student;
+      profile.email = student.email;
+      for (const key in updateProfileDto) {
+        profile[key] = updateProfileDto[key];
+      }
+      this.profileEntity.save(profile);
+    }
 
     await this.studentEntity.update({ id: student.id }, { isActive: true });
-    return updateProfileDto;
+    delete profile.student;
+    return existingProfile ? existingProfile : profile;
   }
 
   remove(id: number) {

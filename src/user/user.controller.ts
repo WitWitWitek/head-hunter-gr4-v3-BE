@@ -22,10 +22,10 @@ export class UserController {
     return this.userService.createStudent(createStudentDto, UserRole.Student);
   }
 
-  // @Post('/add-hr')
-  // createHr(@Body() createUserDto: CreateUserDto[]) {
-  //   return this.userService.createStudent(createUserDto, UserRole.HR);
-  // }
+  @Post('/add-hr')
+  createHr(@Body() createUserDto: CreateStudentDto) {
+    return this.userService.createStudent(createUserDto, UserRole.HR);
+  }
 
   @Post('/add-admin')
   createAdmin(@Body() createUserDto: CreateUserDto) {

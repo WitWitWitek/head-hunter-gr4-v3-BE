@@ -115,6 +115,8 @@ export class Profile implements StudentProfile {
   })
   courses: string;
 
-  @OneToOne(() => Student, (student) => student.profile)
+  @OneToOne(() => Student, (student) => student.profile, {
+    onDelete: 'CASCADE',
+  })
   student: Student;
 }
