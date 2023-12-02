@@ -12,6 +12,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from 'src/types';
+import { CreateStudentDto } from '../student/dto/create-student.dto';
 import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { RolesGuard } from 'src/shared/guards/roles.guard';
@@ -21,13 +22,13 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('/add-student')
-  createStudent(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto, UserRole.Student);
+  createStudent(@Body() createStudentDto: CreateStudentDto) {
+    return this.userService.createStudent(createStudentDto, UserRole.Student);
   }
 
   @Post('/add-hr')
-  createHr(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto, UserRole.HR);
+  createHr(@Body() createUserDto: CreateStudentDto) {
+    return this.userService.createStudent(createUserDto, UserRole.HR);
   }
 
   @Post('/add-admin')

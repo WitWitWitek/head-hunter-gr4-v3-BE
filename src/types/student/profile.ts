@@ -1,38 +1,33 @@
-import { IsEnum, IsString, Min } from 'class-validator';
-import {
-  ExpectedContractType,
-  ExpectedTypeWork,
-  StudentProfile,
-} from 'src/types/student/profile';
+export enum ExpectedTypeWork {
+  OnSite = 'Na miejscu',
+  Relocation = 'Gotowość do przeprowadzki',
+  Remote = 'Wyłącznie zdalnie',
+  Hybrid = 'Hybrydowo',
+  Any = 'Bez znaczenia',
+}
 
-export class UpdatetudentProfileDto implements StudentProfile {
+export enum ExpectedContractType {
+  UoP = 'UoP',
+  B2B = 'B2B',
+  UZ_UoD = 'UZ/UoD',
+  Any = 'Brak preferencji',
+}
+
+export type StudentProfile = {
   phone: string;
-
-  @IsString()
   firstName: string;
-
-  @IsString()
   lastName: string;
   githubUsername: string;
   portfolioUrls: string[];
   projectUrls: string[];
   bio: string;
-
-  @IsEnum(ExpectedTypeWork)
   expectedTypeWork: ExpectedTypeWork;
-
   targetWorkCity: string;
-
-  @IsEnum(ExpectedContractType)
   expectedContractType: ExpectedContractType;
-
-  @Min(0)
   expectedSalary: number;
   canTakeApprenticeship: boolean;
-
-  @Min(0)
   monthsOfCommercialExp: number;
   education: string;
   workExperience: string;
   courses: string;
-}
+};

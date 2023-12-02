@@ -13,12 +13,12 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({
-    nullable: false,
-    length: 50,
-    unique: true,
-  })
-  username: string;
+  // @Column({
+  //   nullable: false,
+  //   length: 50,
+  //   unique: true,
+  // })
+  // username: string;
 
   @Column({
     nullable: false,
@@ -28,7 +28,7 @@ export class User extends BaseEntity {
   email: string;
 
   @Column({
-    nullable: false,
+    nullable: true,
     length: 100,
   })
   password: string;
@@ -49,7 +49,6 @@ export class User extends BaseEntity {
 
   @Column({
     nullable: true,
-    unique: true,
     default: null,
   })
   loginToken: string;

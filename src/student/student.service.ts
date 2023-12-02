@@ -1,12 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { CreateStudentDto } from './dto/create-student.dto';
-import { UpdateStudentDto } from './dto/update-student.dto';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../user/entities/user.entity';
+import { Repository } from 'typeorm';
+import { Student } from './entities/student.entity';
+import { Profile } from './entities/profile.entity';
+import { UpdatetudentProfileDto } from './dto/update-student.dto';
 
 @Injectable()
 export class StudentService {
-  create(createStudentDto: CreateStudentDto) {
-    return 'This action adds a new student';
-  }
+  constructor(
+    @InjectRepository(Student) private studentEntity: Repository<Student>,
+    @InjectRepository(User) private userEntity: Repository<User>,
+    @InjectRepository(Profile) private profileEntity: Repository<Profile>,
+  ) {}
 
   findAll() {
     return `This action returns all student`;
@@ -16,8 +22,44 @@ export class StudentService {
     return `This action returns a #${id} student`;
   }
 
-  update(id: number, updateStudentDto: UpdateStudentDto) {
-    return `This action updates a #${id} student`;
+  async updateProfile(
+    studentId: string,
+    updateProfileDto: UpdatetudentProfileDto,
+  ) {
+    const student: Student = await this.studentEntity.findOne({
+      where: { id: studentId },
+    });
+    if (!student) {
+      throw new BadRequestException(
+        `Nie mamy w bazie studenta o id: ${studentId}.`,
+      );
+    }
+
+    const existingProfile: Profile = await this.profileEntity.findOne({
+      where: [
+        { githubUsername: updateProfileDto.githubUsername },
+        { email: student.email },
+      ],
+    });
+
+    const profile = new Profile();
+    if (existingProfile) {
+      for (const key in updateProfileDto) {
+        existingProfile[key] = updateProfileDto[key];
+      }
+      this.profileEntity.save(existingProfile);
+    } else {
+      profile.student = student;
+      profile.email = student.email;
+      for (const key in updateProfileDto) {
+        profile[key] = updateProfileDto[key];
+      }
+      this.profileEntity.save(profile);
+    }
+
+    await this.studentEntity.update({ id: student.id }, { isActive: true });
+    delete profile.student;
+    return existingProfile ? existingProfile : profile;
   }
 
   remove(id: number) {

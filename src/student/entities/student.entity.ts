@@ -1,5 +1,19 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Min, Max, IsInt } from 'class-validator';
+import { Profile } from './profile.entity';
+
+enum StudentStatus {
+  Available = 'Dostępny',
+  InInterview = 'W trakcie rozmowy',
+  Employed = 'Zatrudniony',
+}
 
 @Entity('student')
 export class Student extends BaseEntity {
@@ -49,4 +63,22 @@ export class Student extends BaseEntity {
     nullable: true,
   })
   bonusProjectUrls: string[];
+
+  @Column({
+    type: 'enum',
+    enum: StudentStatus,
+    default: StudentStatus.Available,
+  })
+  status: StudentStatus;
+
+  @Column({
+    default: false,
+  })
+  isActive: boolean;
+
+  @OneToOne(() => Profile, (profile) => profile.student, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  profile: Profile;
 }
