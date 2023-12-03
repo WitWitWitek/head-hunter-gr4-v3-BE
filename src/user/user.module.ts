@@ -7,14 +7,21 @@ import {StudentController} from "../student/student.controller";
 import {StudentService} from "../student/student.service";
 import {StudentModule} from "../student/student.module";
 import {Student} from "../student/entities/student.entity";
+import {JwtModule} from "@nestjs/jwt";
+import {TokenModule} from "../token/token.module";
 import {Profile} from "../student/entities/profile.entity";
-import { MailModule } from 'src/mail/mail.module';
+import {MailModule} from "../mail/mail.module";
 
 @Module({
   imports: [TypeOrmModule.forFeature([User,Student, Profile]),
       forwardRef(() => UserModule),
       forwardRef(() => StudentModule),
-      MailModule],
+      forwardRef(() => MailModule),
+      forwardRef(() => TokenModule),
+      forwardRef(() => JwtModule),
+  //    MailModule
+  ],
+
   controllers: [UserController, StudentController],
   providers: [UserService, StudentService],
   exports: [UserService],
