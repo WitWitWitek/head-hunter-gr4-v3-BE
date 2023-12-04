@@ -14,17 +14,10 @@ import {
 } from 'src/types';
 
 @Entity('profile')
-@Unique(['email', 'githubUsername'])
+@Unique(['githubUsername'])
 export class Profile implements StudentProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({
-    nullable: false,
-    length: 100,
-    unique: true,
-  })
-  email: string;
 
   @Column({
     nullable: true,

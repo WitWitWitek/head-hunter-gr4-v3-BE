@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Min, Max, IsInt } from 'class-validator';
 import { Profile } from './profile.entity';
+import { User } from 'src/user/entities/user.entity';
 
 enum StudentStatus {
   Available = 'Dostępny',
@@ -19,13 +20,6 @@ enum StudentStatus {
 export class Student extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({
-    nullable: false,
-    length: 100,
-    unique: true,
-  })
-  email: string;
 
   @Column({
     nullable: true,
@@ -81,4 +75,10 @@ export class Student extends BaseEntity {
   })
   @JoinColumn()
   profile: Profile;
+
+  @OneToOne(() => User, (user) => user.student, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  user: User;
 }

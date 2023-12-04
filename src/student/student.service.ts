@@ -38,7 +38,7 @@ export class StudentService {
     const existingProfile: Profile = await this.profileEntity.findOne({
       where: [
         { githubUsername: updateProfileDto.githubUsername },
-        { email: student.email },
+        // { email: student.email },
       ],
     });
 
@@ -50,7 +50,7 @@ export class StudentService {
       this.profileEntity.save(existingProfile);
     } else {
       profile.student = student;
-      profile.email = student.email;
+      // profile.email = student.email;
       for (const key in updateProfileDto) {
         profile[key] = updateProfileDto[key];
       }
