@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { hash } from 'bcrypt';
 import { Student } from '../student/entities/student.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateStudentDto, CreateUserStudentToAdd, UserRole } from 'src/types';
 import { In } from 'typeorm';
-import { UserRole } from 'src/types';
 import { hashData } from 'src/utils';
 import { MailService } from 'src/mail/mail.service';
 
@@ -37,7 +35,7 @@ export class UserService {
     const studentsToAdd = students.filter(
       (newStudent) => !existingStudentsEmails.includes(newStudent.email),
     );
-
+    console.log(studentsToAdd);
     await this.studentEntity.save(studentsToAdd);
     const userStudentsToAdd: CreateUserStudentToAdd[] = studentsToAdd.map(
       (student) => ({
