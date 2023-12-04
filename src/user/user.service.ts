@@ -52,7 +52,11 @@ export class UserService {
       return user;
     });
     await this.userEntity.save(userStudentsToAdd);
-    // await this.mailService.sendUserConfirmation(user);
+
+    for await (const newUser of userStudentsToAdd) {
+      await this.mailService.sendUserConfirmation(newUser);
+    }
+
     return {
       message: `Added ${studentsToAdd.length} of ${students.length}.`,
     };
