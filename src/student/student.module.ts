@@ -11,17 +11,22 @@ import {Profile} from "./entities/profile.entity";
 import {MailModule} from "../mail/mail.module";
 import {TokenModule} from "../token/token.module";
 import {JwtModule} from "@nestjs/jwt";
+import {Hr} from "../hr/entities/hr.entity";
+import {HrModule} from "../hr/hr.module";
+import {HrController} from "../hr/hr.controller";
+import {HrService} from "../hr/hr.service";
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Student, User, Profile]),
+  imports: [TypeOrmModule.forFeature([Student, User, Profile, Hr]),
       forwardRef(() => StudentModule),
       forwardRef(() => UserModule),
+      forwardRef(() => HrModule),
       forwardRef(() => MailModule),
       forwardRef(() => TokenModule),
       forwardRef(() => JwtModule),
   ],
-  controllers: [StudentController, UserController, ],
-  providers: [StudentService, UserService, ],
+  controllers: [StudentController, UserController, HrController],
+  providers: [StudentService, UserService, HrService],
 })
 export class StudentModule {}
