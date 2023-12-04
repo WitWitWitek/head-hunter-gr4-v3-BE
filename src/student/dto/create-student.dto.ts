@@ -17,9 +17,9 @@ export class StudentDto {
 
   password: string;
 
-  @IsString()
-  @IsNotEmpty()
-  username: string;
+  // @IsString()
+  // @IsNotEmpty()
+  // username: string;
 
   @IsInt()
   @Min(1)

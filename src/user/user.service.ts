@@ -18,10 +18,7 @@ export class UserService {
     private mailService: MailService,
   ) {}
 
-  async createStudent(
-    newStudents: CreateStudentDto,
-    role: UserRole,
-  ): Promise<string> {
+  async createStudent(newStudents: CreateStudentDto, role: UserRole) {
     const { students } = newStudents;
     const emails = students.map((student) => student.email);
     const existingStudents = await this.studentEntity.find({
@@ -46,7 +43,9 @@ export class UserService {
 
     // await this.mailService.sendUserConfirmation(user);
     await this.userEntity.save(userStudentsToAdd);
-    return `Added ${studentsToAdd.length} of ${students.length}.`;
+    return {
+      message: `Added ${studentsToAdd.length} of ${students.length}.`,
+    };
   }
 
   async createAdmin(createUserDto: CreateUserDto) {
