@@ -14,10 +14,25 @@ export class StudentController {
     return this.studentService.updateProfile(studentId, updateProfile);
   }
 
-  @Get()
+  @Patch('/employed/:studentId')
+  updateCheckedEmployed(
+      @Body()
+      @Param('studentId') studentId: string,
+  ): Promise<string> {
+    return this.studentService.updateStudentStatus(studentId);
+  }
+
+  @Get('all')
   findAll() {
     return this.studentService.findAll();
   }
+
+  @Get('hrstudentlist')
+  findAllToHr() {
+    return this.studentService.findAllToHr();
+  }
+
+
 
   @Get(':id')
   findOne(@Param('id') id: string) {

@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import {CreateHrDto, CreateUserHrToAdd} from './dto/create-hr.dto';
 import { UpdateHrDto } from './dto/update-hr.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "../user/entities/user.entity";
-import {In, Repository} from "typeorm";
+import { Repository } from "typeorm";
 import {Student} from "../student/entities/student.entity";
-import {UserRole} from "../types";
 import {Hr} from "./entities/hr.entity";
 
 

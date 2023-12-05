@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { Profile } from './entities/profile.entity';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
+import {StudentStatus} from "../types/students";
+import {StudentListToHr} from "../types/student/student-list-to-hr";
 
 @Injectable()
 export class StudentService {
@@ -14,11 +16,50 @@ export class StudentService {
     @InjectRepository(Profile) private profileEntity: Repository<Profile>,
   ) {}
 
-  findAll() {
-    return `This action returns all student`;
+  async findAll() {
+
+    const activeStudents = await this.studentEntity.find({
+      where: { isActive: true },
+      relations: ['profile', 'user'],
+    });
+
+    activeStudents.forEach(student => {
+      console.log(`Student ID: ${student.id}, Updated At: ${student.user.updatedAt}`);
+    });
+
+    return activeStudents;
+  }
+
+  async findAllToHr():Promise<StudentListToHr[]> {
+
+    const activeStudents = await this.studentEntity.find({
+      where: { isActive: true },
+      relations: ['profile', 'user'],
+    });
+
+    console.log("ActiveStudents", activeStudents)
+
+    const studentListToHr: StudentListToHr[] = activeStudents.map(student => {
+      return {
+        firstName: student.profile?.firstName,
+        lastName: student.profile?.lastName,
+        courseCompletion: student.courseCompletion,
+        courseEngagement: student.courseEngagement,
+        projectDegree: student.projectDegree,
+        teamProjectDegree: student.teamProjectDegree,
+        expectedTypeWork: student.profile.expectedTypeWork,
+        targetWorkCity: student.profile.targetWorkCity,
+        expectedContractType: student.profile.expectedContractType,
+        expectedSalary: student.profile.expectedSalary,
+        canTakeApprenticeship: student.profile.canTakeApprenticeship,
+        monthsOfCommercialExp: student.profile.monthsOfCommercialExp,
+      };
+    });
+    return studentListToHr;
   }
 
   findOne(id: number) {
+
     return `This action returns a #${id} student`;
   }
 
@@ -38,7 +79,7 @@ export class StudentService {
     const existingProfile: Profile = await this.profileEntity.findOne({
       where: [
         { githubUsername: updateProfileDto.githubUsername },
-        { email: student.email },
+        // { email: student.email },
       ],
     });
 
@@ -47,19 +88,34 @@ export class StudentService {
       for (const key in updateProfileDto) {
         existingProfile[key] = updateProfileDto[key];
       }
-      this.profileEntity.save(existingProfile);
+      await this.profileEntity.save(existingProfile);
     } else {
       profile.student = student;
-      profile.email = student.email;
       for (const key in updateProfileDto) {
         profile[key] = updateProfileDto[key];
       }
-      this.profileEntity.save(profile);
+      await this.studentEntity.update({ id: student.id }, { isActive: true });
+      await this.profileEntity.save(profile);
     }
 
-    await this.studentEntity.update({ id: student.id }, { isActive: true });
+ //   await this.studentEntity.update({ id: student.id }, { isActive: true });
     delete profile.student;
     return existingProfile ? existingProfile : profile;
+  }
+
+  async updateStudentStatus (
+      studentId: string,
+  ) {
+    const student: Student = await this.studentEntity.findOne({
+      where: { id: studentId },
+    });
+
+    if (!student) {
+      throw new BadRequestException(`Nie mamy w bazie studenta o id: ${studentId}.`);
+    }
+    await this.studentEntity.update({ id: student.id }, { status: StudentStatus.Employed });
+
+    return "Zmieniono status na zatrudniony";
   }
 
   remove(id: number) {

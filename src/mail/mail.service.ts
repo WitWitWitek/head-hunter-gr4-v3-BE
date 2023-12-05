@@ -25,7 +25,7 @@ export class MailService {
       subject: 'Welcome to Head Hunter! Confirm your account and email',
       template: './confirmation',
       context: {
-        username: user.username,
+     //   username: user.username,
         link: url,
       },
     });

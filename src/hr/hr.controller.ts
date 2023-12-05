@@ -1,8 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
 import { HrService } from './hr.service';
-import { CreateHrDto } from './dto/create-hr.dto';
 import { UpdateHrDto } from './dto/update-hr.dto';
-import {UserRole} from "../types";
 
 @Controller('hr')
 export class HrController {
