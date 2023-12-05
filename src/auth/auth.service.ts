@@ -18,7 +18,9 @@ export class AuthService {
     const { email, password } = signInDto;
 
     const user = await this.validateUserByEmail(email);
-
+    if (!user.confirmed) {
+      throw new UnauthorizedException('Please confirm your account');
+    }
     const passwordMatch = await verifyHashedData(password, user.password);
 
     if (!passwordMatch) {

@@ -76,6 +76,14 @@ export class UserService {
     await this.userEntity.save(adminUser);
   }
 
+  async confirmUser(user: User) {
+    user.confirmed = true;
+    this.userEntity.save(user);
+    return {
+      message: `${user.email} successfully confirmed`,
+    };
+  }
+
   findAll() {
     return this.userEntity.find();
   }
