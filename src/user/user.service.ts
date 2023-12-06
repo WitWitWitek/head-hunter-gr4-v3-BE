@@ -7,14 +7,17 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateStudentDto, UserRole } from 'src/types';
 import { In } from 'typeorm';
-import { hashData } from 'src/utils';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from '../mail/mail.service';
+import { hashData } from '../utils';
+import { Hr } from '../hr/entities/hr.entity';
+import { CreateHrDto, CreateUserHrToAdd } from '../hr/dto/create-hr.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userEntity: Repository<User>,
     @InjectRepository(Student) private studentEntity: Repository<Student>,
+    @InjectRepository(Hr) private hrEntity: Repository<Hr>,
     private mailService: MailService,
   ) {}
 
@@ -82,6 +85,31 @@ export class UserService {
     return {
       message: `${user.email} successfully confirmed`,
     };
+  }
+
+  async createHr(newHr: CreateHrDto, role: UserRole): Promise<string> {
+    const { hrs } = newHr;
+    const emails = hrs.map((hr) => hr.email);
+    const existingHrs = await this.hrEntity.find({
+      where: {
+        email: In(emails),
+      },
+    });
+    const existingHrsEmails = existingHrs.map((existingHr) => existingHr.email);
+    const hrToAdd = hrs.filter(
+      (newHr) => !existingHrsEmails.includes(newHr.email),
+    );
+    await this.hrEntity.save(hrToAdd);
+
+    const userHrsToAdd: CreateUserHrToAdd[] = hrToAdd.map((hr) => ({
+      email: hr.email,
+      role: role,
+    }));
+    console.log('data', Date());
+    await this.userEntity.save(userHrsToAdd);
+    //await this.mailService.sendUserConfirmation(user);
+
+    return `Added ${hrToAdd.length} of ${hrs.length}.`;
   }
 
   findAll() {

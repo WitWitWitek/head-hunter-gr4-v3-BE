@@ -20,6 +20,7 @@ import { RolesGuard } from 'src/shared/guards/roles.guard';
 import { ConfirmationTokenGuard } from './guard/confirmation-token.guard';
 import { Request } from 'express';
 import { User } from './entities/user.entity';
+import { CreateHrDto } from '../hr/dto/create-hr.dto';
 
 @Controller('user')
 export class UserController {
@@ -31,8 +32,8 @@ export class UserController {
   }
 
   @Post('/add-hr')
-  createHr(@Body() createUserDto: CreateStudentDto) {
-    return this.userService.createStudent(createUserDto, UserRole.HR);
+  createHr(@Body() createHrDto: CreateHrDto) {
+    return this.userService.createHr(createHrDto, UserRole.HR);
   }
 
   @Post('/add-admin')

@@ -31,3 +31,4 @@ export type StudentProfile = {
   workExperience: string;
   courses: string;
 };
+

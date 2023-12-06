@@ -7,29 +7,28 @@ import { StudentController } from '../student/student.controller';
 import { StudentService } from '../student/student.service';
 import { StudentModule } from '../student/student.module';
 import { Student } from '../student/entities/student.entity';
+import { JwtModule } from '@nestjs/jwt';
+import { TokenModule } from '../token/token.module';
 import { Profile } from '../student/entities/profile.entity';
-import { MailModule } from 'src/mail/mail.module';
-import { TokenModule } from 'src/token/token.module';
-import { ConfirmationTokenStrategy } from './strategy';
-import { AuthModule } from 'src/auth/auth.module';
-import { AuthService } from 'src/auth/auth.service';
+import { MailModule } from '../mail/mail.module';
+import { HrModule } from '../hr/hr.module';
+import { HrController } from '../hr/hr.controller';
+import { HrService } from '../hr/hr.service';
+import { Hr } from '../hr/entities/hr.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Student, Profile]),
+    TypeOrmModule.forFeature([User, Student, Profile, Hr]),
     forwardRef(() => UserModule),
     forwardRef(() => StudentModule),
+    forwardRef(() => HrModule),
+    forwardRef(() => MailModule),
     forwardRef(() => TokenModule),
-    forwardRef(() => AuthModule),
-    MailModule,
+    forwardRef(() => JwtModule),
   ],
-  controllers: [UserController, StudentController],
-  providers: [
-    UserService,
-    StudentService,
-    AuthService,
-    ConfirmationTokenStrategy,
-  ],
+
+  controllers: [UserController, StudentController, HrController],
+  providers: [UserService, StudentService, HrService],
   exports: [UserService],
 })
 export class UserModule {}

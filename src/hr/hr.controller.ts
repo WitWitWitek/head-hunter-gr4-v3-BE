@@ -1,16 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
 import { HrService } from './hr.service';
-import { CreateHrDto } from './dto/create-hr.dto';
 import { UpdateHrDto } from './dto/update-hr.dto';
 
 @Controller('hr')
 export class HrController {
   constructor(private readonly hrService: HrService) {}
 
-  @Post()
-  create(@Body() createHrDto: CreateHrDto) {
-    return this.hrService.create(createHrDto);
-  }
+  // @Post('/add-hr')
+  // createHr(@Body() createHrDto: CreateHrDto) {
+  //   return this.hrService.createHr(createHrDto, UserRole.HR);
+  // }
 
   @Get()
   findAll() {
