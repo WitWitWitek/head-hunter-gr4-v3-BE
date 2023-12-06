@@ -1,12 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import {Not, Repository} from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { Profile } from './entities/profile.entity';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
-import {StudentStatus} from "../types/students";
-import {StudentListToHr} from "../types/student/student-list-to-hr";
+import { StudentStatus } from '../types/students';
 
 @Injectable()
 export class StudentService {
@@ -17,62 +16,43 @@ export class StudentService {
   ) {}
 
   async findAll() {
-
     const activeStudents = await this.studentEntity.find({
       where: { isActive: true },
       relations: ['profile', 'user'],
     });
 
-    activeStudents.forEach(student => {
-      console.log(`Student ID: ${student.id}, Updated At: ${student.user.updatedAt}`);
+    activeStudents.forEach((student) => {
+      console.log(
+        `Student ID: ${student.id}, Updated At: ${student.user.updatedAt}`,
+      );
     });
 
     return activeStudents;
   }
 
-  async findAllToHr():Promise<StudentListToHr[]> {
-
+  async findAllToHr() {
     const activeStudents = await this.studentEntity.find({
-      where: { isActive: true,
-            status: Not (StudentStatus.Employed)
-          },
+      where: { isActive: true, status: Not(StudentStatus.Employed) },
       relations: ['profile', 'user'],
     });
 
-    const studentListToHr: StudentListToHr[] = activeStudents.map(student => {
-      return {
-        firstName: student.profile?.firstName,
-        lastName: student.profile?.lastName,
-        courseCompletion: student.courseCompletion,
-        courseEngagement: student.courseEngagement,
-        projectDegree: student.projectDegree,
-        teamProjectDegree: student.teamProjectDegree,
-        expectedTypeWork: student.profile.expectedTypeWork,
-        targetWorkCity: student.profile.targetWorkCity,
-        expectedContractType: student.profile.expectedContractType,
-        expectedSalary: student.profile.expectedSalary,
-        canTakeApprenticeship: student.profile.canTakeApprenticeship,
-        monthsOfCommercialExp: student.profile.monthsOfCommercialExp,
-      };
-    });
-    return studentListToHr;
+    return activeStudents;
   }
 
   findOne(id: number) {
-
     return `This action returns a #${id} student`;
   }
 
   async updateProfile(
-      studentId: string,
-      updateProfileDto: UpdatetudentProfileDto,
+    studentId: string,
+    updateProfileDto: UpdatetudentProfileDto,
   ) {
     const student: Student = await this.studentEntity.findOne({
       where: { id: studentId },
     });
     if (!student) {
       throw new BadRequestException(
-          `Nie mamy w bazie studenta o id: ${studentId}.`,
+        `Nie mamy w bazie studenta o id: ${studentId}.`,
       );
     }
 
@@ -99,27 +79,27 @@ export class StudentService {
     return existingProfile ? existingProfile : profile;
   }
 
-  async updateStudentStatus (
-      studentId: string,
-      studentStatus: StudentStatus,
-  ) {
+  async updateStudentStatus(studentId: string, studentStatus: StudentStatus) {
     const student: Student = await this.studentEntity.findOne({
       where: { id: studentId },
     });
 
     if (!student) {
-      throw new BadRequestException(`Nie mamy w bazie studenta o id: ${studentId}.`);
+      throw new BadRequestException(
+        `Nie mamy w bazie studenta o id: ${studentId}.`,
+      );
     }
-    await this.studentEntity.update({ id: student.id }, { status: studentStatus });
+    await this.studentEntity.update(
+      { id: student.id },
+      { status: studentStatus },
+    );
 
-    return "Zmieniono status na zatrudniony";
+    return 'Zmieniono status na zatrudniony';
   }
 
   async getStudentCV(id) {
-
     const student = await this.studentEntity.findOne({
-      where: { id: id,
-      },
+      where: { id: id },
       relations: ['profile', 'user'],
     });
     if (!student) {

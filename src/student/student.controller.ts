@@ -1,7 +1,7 @@
 import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
-import {StudentStatus} from "../types/students";
+import { StudentStatus } from '../types/students';
 
 @Controller('student')
 export class StudentController {
@@ -17,10 +17,14 @@ export class StudentController {
 
   @Patch('/employed/:studentId')
   updateCheckedEmployed(
-      @Body()
-      @Param('studentId') studentId: string,
+    @Body()
+    @Param('studentId')
+    studentId: string,
   ): Promise<string> {
-    return this.studentService.updateStudentStatus(studentId, StudentStatus.Employed);
+    return this.studentService.updateStudentStatus(
+      studentId,
+      StudentStatus.Employed,
+    );
   }
 
   @Get('all')
@@ -33,12 +37,10 @@ export class StudentController {
     return this.studentService.findAllToHr();
   }
 
-
   @Get('cv/:id')
   studentCV(@Param('id') id: string) {
     return this.studentService.getStudentCV(id);
   }
-
 
   @Get(':id')
   findOne(@Param('id') id: string) {

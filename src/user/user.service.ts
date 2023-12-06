@@ -1,4 +1,4 @@
-import {Injectable, Logger} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -7,11 +7,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateStudentDto, UserRole } from 'src/types';
 import { In } from 'typeorm';
-import {MailService} from "../mail/mail.service";
-import {hashData} from "../utils";
-import {Hr} from "../hr/entities/hr.entity";
-import {CreateHrDto, CreateUserHrToAdd} from "../hr/dto/create-hr.dto";
-
+import { MailService } from '../mail/mail.service';
+import { hashData } from '../utils';
+import { Hr } from '../hr/entities/hr.entity';
+import { CreateHrDto, CreateUserHrToAdd } from '../hr/dto/create-hr.dto';
 
 @Injectable()
 export class UserService {
@@ -22,10 +21,7 @@ export class UserService {
     private mailService: MailService,
   ) {}
 
-  async createStudent(
-    newStudents: CreateStudentDto,
-    role: UserRole,
-  ) {
+  async createStudent(newStudents: CreateStudentDto, role: UserRole) {
     const { students } = newStudents;
     const emails = students.map((student) => student.email);
     const existingStudents = await this.userEntity.find({
@@ -88,32 +84,25 @@ export class UserService {
     await this.userEntity.save(adminUser);
   }
 
-  async createHr(
-      newHr: CreateHrDto,
-      role: UserRole):Promise<string> {
-
-    const {hrs} = newHr;
-    const emails = hrs.map((student) => student.email);
+  async createHr(newHr: CreateHrDto, role: UserRole): Promise<string> {
+    const { hrs } = newHr;
+    const emails = hrs.map((hr) => hr.email);
     const existingHrs = await this.hrEntity.find({
       where: {
         email: In(emails),
-      }
+      },
     });
-    const existingHrsEmails = existingHrs.map(
-        (existingHr) => existingHr.email,
-    );
+    const existingHrsEmails = existingHrs.map((existingHr) => existingHr.email);
     const hrToAdd = hrs.filter(
-        newHr => !existingHrsEmails.includes(newHr.email),
-    )
+      (newHr) => !existingHrsEmails.includes(newHr.email),
+    );
     await this.hrEntity.save(hrToAdd);
 
-    const userHrsToAdd: CreateUserHrToAdd[] = hrToAdd.map(
-        (hr) => ({
-          email: hr.email,
-          role: role,
-        })
-    )
-    console.log("data", Date());
+    const userHrsToAdd: CreateUserHrToAdd[] = hrToAdd.map((hr) => ({
+      email: hr.email,
+      role: role,
+    }));
+    console.log('data', Date());
     //await this.mailService.sendUserConfirmation(user);
     await this.userEntity.save(userHrsToAdd);
 
