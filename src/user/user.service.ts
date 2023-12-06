@@ -5,43 +5,55 @@ import { Repository } from 'typeorm';
 import { Student } from '../student/entities/student.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateStudentDto, CreateUserStudentToAdd, UserRole } from 'src/types';
+import { CreateStudentDto, UserRole } from 'src/types';
 import { In } from 'typeorm';
-import { hashData } from 'src/utils';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from '../mail/mail.service';
+import { hashData } from '../utils';
+import { Hr } from '../hr/entities/hr.entity';
+import { CreateHrDto, CreateUserHrToAdd } from '../hr/dto/create-hr.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userEntity: Repository<User>,
     @InjectRepository(Student) private studentEntity: Repository<Student>,
+    @InjectRepository(Hr) private hrEntity: Repository<Hr>,
     private mailService: MailService,
   ) {}
 
   async createStudent(newStudents: CreateStudentDto, role: UserRole) {
     const { students } = newStudents;
     const emails = students.map((student) => student.email);
-    const existingStudents = await this.studentEntity.find({
+    const existingStudents = await this.userEntity.find({
       where: {
         email: In(emails),
       },
     });
+
     const existingStudentsEmails = existingStudents.map(
       (existingStudent) => existingStudent.email,
     );
+
     const studentsToAdd = students.filter(
       (newStudent) => !existingStudentsEmails.includes(newStudent.email),
     );
-    console.log(studentsToAdd);
-    await this.studentEntity.save(studentsToAdd);
-    const userStudentsToAdd: CreateUserStudentToAdd[] = studentsToAdd.map(
-      (student) => ({
-        email: student.email,
-        role: role,
-      }),
-    );
 
-    // await this.mailService.sendUserConfirmation(user);
+    const studentsEntites = studentsToAdd.map((studentDto) => {
+      const student = new Student();
+      for (const key in studentDto) {
+        student[key] = studentDto[key];
+      }
+      return student;
+    });
+    await this.studentEntity.save(studentsEntites);
+
+    const userStudentsToAdd = studentsEntites.map((student, index) => {
+      const user = new User();
+      user.email = studentsToAdd[index].email;
+      user.role = role;
+      user.student = student;
+      return user;
+    });
     await this.userEntity.save(userStudentsToAdd);
     return {
       message: `Added ${studentsToAdd.length} of ${students.length}.`,
@@ -60,6 +72,31 @@ export class UserService {
     adminUser.confirmed = true;
 
     await this.userEntity.save(adminUser);
+  }
+
+  async createHr(newHr: CreateHrDto, role: UserRole): Promise<string> {
+    const { hrs } = newHr;
+    const emails = hrs.map((hr) => hr.email);
+    const existingHrs = await this.hrEntity.find({
+      where: {
+        email: In(emails),
+      },
+    });
+    const existingHrsEmails = existingHrs.map((existingHr) => existingHr.email);
+    const hrToAdd = hrs.filter(
+      (newHr) => !existingHrsEmails.includes(newHr.email),
+    );
+    await this.hrEntity.save(hrToAdd);
+
+    const userHrsToAdd: CreateUserHrToAdd[] = hrToAdd.map((hr) => ({
+      email: hr.email,
+      role: role,
+    }));
+    console.log('data', Date());
+    //await this.mailService.sendUserConfirmation(user);
+    await this.userEntity.save(userHrsToAdd);
+
+    return `Added ${hrToAdd.length} of ${hrs.length}.`;
   }
 
   findAll() {

@@ -16,6 +16,7 @@ import { CreateStudentDto } from '../student/dto/create-student.dto';
 import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { RolesGuard } from 'src/shared/guards/roles.guard';
+import {CreateHrDto} from "../hr/dto/create-hr.dto";
 
 @Controller('user')
 export class UserController {
@@ -27,8 +28,8 @@ export class UserController {
   }
 
   @Post('/add-hr')
-  createHr(@Body() createUserDto: CreateStudentDto) {
-    return this.userService.createStudent(createUserDto, UserRole.HR);
+  createHr(@Body() createHrDto: CreateHrDto) {
+    return this.userService.createHr(createHrDto, UserRole.HR);
   }
 
   @Post('/add-admin')

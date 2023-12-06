@@ -1,3 +1,4 @@
+import { Student } from 'src/student/entities/student.entity';
 import { UserRole } from 'src/types';
 import {
   Entity,
@@ -6,6 +7,7 @@ import {
   BaseEntity,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
 } from 'typeorm';
 
 @Entity('user')
@@ -52,4 +54,9 @@ export class User extends BaseEntity {
     default: null,
   })
   loginToken: string;
+
+  @OneToOne(() => Student, (student) => student.user, {
+    onDelete: 'CASCADE',
+  })
+  student: Student;
 }
