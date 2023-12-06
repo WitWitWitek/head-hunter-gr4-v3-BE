@@ -34,6 +34,11 @@ export class StudentController {
   }
 
 
+  @Get('cv/:id')
+  studentCV(@Param('id') id: string) {
+    return this.studentService.getStudentCV(id);
+  }
+
 
   @Get(':id')
   findOne(@Param('id') id: string) {

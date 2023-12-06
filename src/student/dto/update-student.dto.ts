@@ -15,7 +15,7 @@ export class UpdatetudentProfileDto implements StudentProfile {
   lastName: string;
   githubUsername: string;
   portfolioUrls: string[];
-  projectUrls: string[];
+  projectUrls: string[] | null;
   bio: string;
 
   @IsEnum(ExpectedTypeWork)
