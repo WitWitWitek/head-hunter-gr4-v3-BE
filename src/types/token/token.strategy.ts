@@ -26,4 +26,5 @@ export enum TokenExpirationTime {
 export enum TokenStrategyName {
   accessToken = 'access-jwt',
   refreshToken = 'refresh-jwt',
+  confirmationToken = 'confirmation-jwt',
 }

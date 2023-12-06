@@ -55,6 +55,11 @@ export class UserService {
       return user;
     });
     await this.userEntity.save(userStudentsToAdd);
+
+    for await (const newUser of userStudentsToAdd) {
+      await this.mailService.sendUserConfirmation(newUser);
+    }
+
     return {
       message: `Added ${studentsToAdd.length} of ${students.length}.`,
     };
@@ -72,6 +77,14 @@ export class UserService {
     adminUser.confirmed = true;
 
     await this.userEntity.save(adminUser);
+  }
+
+  async confirmUser(user: User) {
+    user.confirmed = true;
+    this.userEntity.save(user);
+    return {
+      message: `${user.email} successfully confirmed`,
+    };
   }
 
   async createHr(newHr: CreateHrDto, role: UserRole): Promise<string> {
@@ -93,8 +106,8 @@ export class UserService {
       role: role,
     }));
     console.log('data', Date());
-    //await this.mailService.sendUserConfirmation(user);
     await this.userEntity.save(userHrsToAdd);
+    //await this.mailService.sendUserConfirmation(user);
 
     return `Added ${hrToAdd.length} of ${hrs.length}.`;
   }

@@ -3,7 +3,6 @@ import {
   IsEmail,
   IsInt,
   IsNotEmpty,
-  IsString,
   Min,
   Max,
   ValidateNested,
@@ -16,10 +15,6 @@ export class StudentDto {
   email: string;
 
   password: string;
-
-  // @IsString()
-  // @IsNotEmpty()
-  // username: string;
 
   @IsInt()
   @Min(1)
