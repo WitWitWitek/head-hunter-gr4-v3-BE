@@ -38,14 +38,6 @@ export class UserService {
       (newStudent) => !existingStudentsEmails.includes(newStudent.email),
     );
 
-    // await this.studentEntity.save(studentsToAdd);
-    // const userStudentsToAdd: CreateUserStudentToAdd[] = studentsToAdd.map(
-    //   (student) => ({
-    //     email: student.email,
-    //     role: role,
-    //   }),
-    // );
-
     const studentsEntites = studentsToAdd.map((studentDto) => {
       const student = new Student();
       for (const key in studentDto) {
@@ -63,8 +55,6 @@ export class UserService {
       return user;
     });
     await this.userEntity.save(userStudentsToAdd);
-
-    //await this.mailService.sendUserConfirmation(user);
     return {
       message: `Added ${studentsToAdd.length} of ${students.length}.`,
     };

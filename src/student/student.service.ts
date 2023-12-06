@@ -97,7 +97,7 @@ export class StudentService {
     return 'Zmieniono status na zatrudniony';
   }
 
-  async getStudentCV(id) {
+  async getStudentCV(id: string) {
     const student = await this.studentEntity.findOne({
       where: { id: id },
       relations: ['profile', 'user'],
