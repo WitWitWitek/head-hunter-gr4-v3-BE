@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { Repository } from 'typeorm';
+import {Not, Repository} from 'typeorm';
 import { Student } from './entities/student.entity';
 import { Profile } from './entities/profile.entity';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
@@ -33,11 +33,11 @@ export class StudentService {
   async findAllToHr():Promise<StudentListToHr[]> {
 
     const activeStudents = await this.studentEntity.find({
-      where: { isActive: true },
+      where: { isActive: true,
+            status: Not (StudentStatus.Employed)
+          },
       relations: ['profile', 'user'],
     });
-
-    console.log("ActiveStudents", activeStudents)
 
     const studentListToHr: StudentListToHr[] = activeStudents.map(student => {
       return {
@@ -64,23 +64,20 @@ export class StudentService {
   }
 
   async updateProfile(
-    studentId: string,
-    updateProfileDto: UpdatetudentProfileDto,
+      studentId: string,
+      updateProfileDto: UpdatetudentProfileDto,
   ) {
     const student: Student = await this.studentEntity.findOne({
       where: { id: studentId },
     });
     if (!student) {
       throw new BadRequestException(
-        `Nie mamy w bazie studenta o id: ${studentId}.`,
+          `Nie mamy w bazie studenta o id: ${studentId}.`,
       );
     }
 
     const existingProfile: Profile = await this.profileEntity.findOne({
-      where: [
-        { githubUsername: updateProfileDto.githubUsername },
-        // { email: student.email },
-      ],
+      where: [{ githubUsername: updateProfileDto.githubUsername }],
     });
 
     const profile = new Profile();
@@ -94,17 +91,18 @@ export class StudentService {
       for (const key in updateProfileDto) {
         profile[key] = updateProfileDto[key];
       }
-      await this.studentEntity.update({ id: student.id }, { isActive: true });
       await this.profileEntity.save(profile);
     }
 
- //   await this.studentEntity.update({ id: student.id }, { isActive: true });
+    await this.studentEntity.update({ id: student.id }, { isActive: true });
     delete profile.student;
     return existingProfile ? existingProfile : profile;
   }
 
+
   async updateStudentStatus (
       studentId: string,
+      studentStatus: StudentStatus,
   ) {
     const student: Student = await this.studentEntity.findOne({
       where: { id: studentId },
@@ -113,7 +111,7 @@ export class StudentService {
     if (!student) {
       throw new BadRequestException(`Nie mamy w bazie studenta o id: ${studentId}.`);
     }
-    await this.studentEntity.update({ id: student.id }, { status: StudentStatus.Employed });
+    await this.studentEntity.update({ id: student.id }, { status: studentStatus });
 
     return "Zmieniono status na zatrudniony";
   }
