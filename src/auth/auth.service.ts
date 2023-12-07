@@ -19,7 +19,7 @@ export class AuthService {
 
     const user = await this.validateUserByEmail(email);
     if (!user.confirmed) {
-      throw new UnauthorizedException('Please confirm your account');
+      throw new UnauthorizedException('Potwierdź swoje konto.');
     }
     const passwordMatch = await verifyHashedData(password, user.password);
 
