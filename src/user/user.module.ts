@@ -15,6 +15,8 @@ import { HrModule } from '../hr/hr.module';
 import { HrController } from '../hr/hr.controller';
 import { HrService } from '../hr/hr.service';
 import { Hr } from '../hr/entities/hr.entity';
+import { ConfirmationTokenStrategy } from './strategy';
+import { AuthService } from 'src/auth/auth.service';
 
 @Module({
   imports: [
@@ -28,7 +30,13 @@ import { Hr } from '../hr/entities/hr.entity';
   ],
 
   controllers: [UserController, StudentController, HrController],
-  providers: [UserService, StudentService, HrService],
+  providers: [
+    UserService,
+    AuthService,
+    StudentService,
+    HrService,
+    ConfirmationTokenStrategy,
+  ],
   exports: [UserService],
 })
 export class UserModule {}
