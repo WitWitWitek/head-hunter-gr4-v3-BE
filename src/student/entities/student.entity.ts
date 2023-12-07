@@ -70,6 +70,11 @@ export class Student extends BaseEntity {
   })
   isActive: boolean;
 
+  @Column({
+    default: null,
+  })
+  interviewAddedAt: Date;
+
   @OneToOne(() => Profile, (profile) => profile.student, {
     onDelete: 'CASCADE',
   })

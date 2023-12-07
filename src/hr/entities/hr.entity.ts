@@ -33,4 +33,7 @@ export class Hr extends BaseEntity {
     @Max(999)
     maxReservedStudents: number;
 
+    @Column('simple-array')
+    studentsToInterviews : string[]
+
 }

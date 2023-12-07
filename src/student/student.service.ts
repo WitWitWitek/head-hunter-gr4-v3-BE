@@ -22,9 +22,9 @@ export class StudentService {
     });
 
     activeStudents.forEach((student) => {
-      console.log(
-        `Student ID: ${student.id}, Updated At: ${student.user.updatedAt}`,
-      );
+      // console.log(
+      //   `Student ID: ${student.id}, Updated At: ${student.user.updatedAt}`,
+      // );
     });
 
     return activeStudents;
