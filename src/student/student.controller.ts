@@ -36,11 +36,12 @@ export class StudentController {
   findAllToHr() {
     return this.studentService.findAllToHr();
   }
-  @Post('hrstudentlist')
+  @Post('hrstudentlist/:page')
   findFilteredToHr(
-      @Body() filterHr: FilterHrDto
+      @Body() filterHr: FilterHrDto,
+      @Param('page') page: string
   ) {
-    return this.studentService.findFilteredToHr(filterHr);
+    return this.studentService.findFilteredToHr(filterHr,+page);
   }
 
   @Get('cv/:id')

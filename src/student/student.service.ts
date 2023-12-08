@@ -39,10 +39,12 @@ export class StudentService {
 
     return activeStudents;
   }
-  async  findFilteredToHr(filterHr: FilterHrDto): Promise<Student[]> {
+  async findFilteredToHr(filterHr: FilterHrDto, page: number): Promise<Student[]> {
     const queryBuilder = this.studentEntity
         .createQueryBuilder('student')
-        .leftJoinAndSelect('student.profile', 'profile');
+        .leftJoinAndSelect('student.profile', 'profile')
+        .take(10)
+        .skip((page - 1) * 10);
 
     if (filterHr.courseCompletion && filterHr.courseCompletion.length > 0) {
       queryBuilder.andWhere('student.courseCompletion IN (:...courseCompletion)', {
