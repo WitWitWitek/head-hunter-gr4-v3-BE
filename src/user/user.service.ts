@@ -95,29 +95,35 @@ export class UserService {
     };
   }
 
-  async createHr(newHr: CreateHrDto, role: UserRole): Promise<string> {
-    const { hrs } = newHr;
-    const emails = hrs.map((hr) => hr.email);
-    const existingHrs = await this.hrEntity.find({
+  async createHr(newHr: CreateHrDto, role: UserRole) {
+    const existingHr = await this.userEntity.findOne({
       where: {
-        email: In(emails),
+        email: newHr.email,
+        role: role,
       },
     });
-    const existingHrsEmails = existingHrs.map((existingHr) => existingHr.email);
-    const hrToAdd = hrs.filter(
-      (newHr) => !existingHrsEmails.includes(newHr.email),
-    );
-    await this.hrEntity.save(hrToAdd);
+    if (existingHr) {
+      throw new BadRequestException(
+        `Użytkownik z emailem: ${existingHr.email} istnieje!`,
+      );
+    }
 
-    const userHrsToAdd: CreateUserHrToAdd[] = hrToAdd.map((hr) => ({
-      email: hr.email,
-      role: role,
-    }));
-    console.log('data', Date());
-    await this.userEntity.save(userHrsToAdd);
-    //await this.mailService.sendUserConfirmation(user);
+    const newHrUser = new User();
+    newHrUser.email = newHr.email;
+    newHrUser.role = role;
+    await newHrUser.save();
 
-    return `Added ${hrToAdd.length} of ${hrs.length}.`;
+    const hr = new Hr();
+    hr.user = newHrUser;
+    hr.fullName = newHr.fullName;
+    hr.company = newHr.company;
+    hr.maxReservedStudents = newHr.maxReservedStudents;
+    await hr.save();
+
+    await this.mailService.sendUserConfirmation(newHrUser);
+    return {
+      message: `${newHr.email} dodany do listy HR`,
+    };
   }
 
   findAll() {
