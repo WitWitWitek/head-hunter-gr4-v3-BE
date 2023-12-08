@@ -21,6 +21,7 @@ import { ConfirmationTokenGuard } from './guard/confirmation-token.guard';
 import { Request } from 'express';
 import { User } from './entities/user.entity';
 import { CreateHrDto } from '../hr/dto/create-hr.dto';
+import { ConfirmStudentDto } from './dto/confirm-student.dto';
 
 @Controller('user')
 export class UserController {
@@ -43,8 +44,14 @@ export class UserController {
 
   @UseGuards(ConfirmationTokenGuard)
   @Patch('/confirm/:confirmation_token')
-  confirmUser(@Req() req: Request) {
-    return this.userService.confirmUser(req.user as User);
+  confirmUser(
+    @Req() req: Request,
+    @Body() confirmStudentDto: ConfirmStudentDto,
+  ) {
+    return this.userService.confirmUser(
+      req.user as User,
+      confirmStudentDto.password,
+    );
   }
 
   @Roles(UserRole.Admin)

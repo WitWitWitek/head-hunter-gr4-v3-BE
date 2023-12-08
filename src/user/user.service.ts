@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -79,9 +79,17 @@ export class UserService {
     await this.userEntity.save(adminUser);
   }
 
-  async confirmUser(user: User) {
+  async confirmUser(user: User, password: string) {
+    const hashedPassword = await hashData(password);
+    if (user.confirmed) {
+      throw new BadRequestException(
+        'Użytkownik został wcześniej zweryfikowany.',
+      );
+    }
+    user.password = hashedPassword;
     user.confirmed = true;
-    this.userEntity.save(user);
+
+    await this.userEntity.save(user);
     return {
       message: `${user.email} successfully confirmed`,
     };
