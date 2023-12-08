@@ -5,13 +5,12 @@ import {
   IsNotEmpty,
   Max,
   Min,
-  ValidateNested,
   IsString,
   IsEnum,
+  IsDefined,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
-export class HrDto {
+export class CreateHrDto {
   @IsEmail()
   @IsNotEmpty()
   @IsString()
@@ -31,15 +30,11 @@ export class HrDto {
   maxReservedStudents: number;
 }
 
-export class CreateHrDto {
-  @ValidateNested()
-  @Type(() => HrDto)
-  hrs: HrDto[];
-}
-
 export class CreateUserHrToAdd {
+  @IsNotEmpty()
   @IsEmail()
   email: string;
+  @IsDefined()
   @IsEnum(UserRole)
   role: UserRole;
 }

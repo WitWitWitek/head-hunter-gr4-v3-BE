@@ -20,8 +20,8 @@ import { RolesGuard } from 'src/shared/guards/roles.guard';
 import { ConfirmationTokenGuard } from './guard/confirmation-token.guard';
 import { Request } from 'express';
 import { User } from './entities/user.entity';
-import { CreateHrDto } from '../hr/dto/create-hr.dto';
 import { ConfirmStudentDto } from './dto/confirm-student.dto';
+import { CreateHrDto } from 'src/hr/dto/create-hr.dto';
 
 @Controller('user')
 export class UserController {

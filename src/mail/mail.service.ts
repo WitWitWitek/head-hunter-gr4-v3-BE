@@ -18,7 +18,7 @@ export class MailService {
       TokenName.confirmation_token,
     );
 
-    const url = `https://head-hunter-ynt4.onrender.com/confirm/${user.role}?token=${confirmation_token}`;
+    const url = `https://head-hunter-ynt4.onrender.com/confirm?token=${confirmation_token}`;
 
     await this.mailerService.sendMail({
       to: user.email,
