@@ -103,6 +103,8 @@ export class StudentService {
         monthsOfCommercialExp: filterHr.monthsOfCommercialExp,
       });
     }
+    queryBuilder.andWhere('student.isActive = :isActive', { isActive: true })
+    queryBuilder.andWhere('student.status != :status', { status: StudentStatus.Employed })
 
     return queryBuilder.getMany()
   }
