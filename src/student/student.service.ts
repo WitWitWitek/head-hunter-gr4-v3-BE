@@ -1,11 +1,13 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../user/entities/user.entity';
-import { Not, Repository } from 'typeorm';
-import { Student } from './entities/student.entity';
-import { Profile } from './entities/profile.entity';
-import { UpdatetudentProfileDto } from './dto/update-student.dto';
-import { StudentStatus } from '../types/students';
+import {BadRequestException, Injectable} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {User} from '../user/entities/user.entity';
+import {Not, Repository} from 'typeorm';
+import {Student} from './entities/student.entity';
+import {Profile} from './entities/profile.entity';
+import {UpdatetudentProfileDto} from './dto/update-student.dto';
+import {StudentStatus} from '../types/students';
+import {FilterHrDto} from "./dto/filter-hr.dto";
+
 
 @Injectable()
 export class StudentService {
@@ -29,7 +31,6 @@ export class StudentService {
 
     return activeStudents;
   }
-
   async findAllToHr() {
     const activeStudents = await this.studentEntity.find({
       where: { isActive: true, status: Not(StudentStatus.Employed) },
@@ -38,6 +39,73 @@ export class StudentService {
 
     return activeStudents;
   }
+  async  findFilteredToHr(filterHr: FilterHrDto): Promise<Student[]> {
+    const queryBuilder = this.studentEntity
+        .createQueryBuilder('student')
+        .leftJoinAndSelect('student.profile', 'profile');
+
+    if (filterHr.courseCompletion && filterHr.courseCompletion.length > 0) {
+      queryBuilder.andWhere('student.courseCompletion IN (:...courseCompletion)', {
+        courseCompletion: filterHr.courseCompletion,
+      });
+    }
+
+    if (filterHr.courseEngagement && filterHr.courseEngagement.length > 0) {
+      queryBuilder.andWhere('student.courseEngagement IN (:...courseEngagement)', {
+        courseEngagement: filterHr.courseEngagement,
+      });
+    }
+
+    if (filterHr.projectDegree && filterHr.projectDegree.length > 0) {
+      queryBuilder.andWhere('student.projectDegree IN (:...projectDegree)', {
+        projectDegree: filterHr.projectDegree,
+      });
+    }
+
+    if (filterHr.teamProjectDegree && filterHr.teamProjectDegree.length > 0) {
+      queryBuilder.andWhere('student.teamProjectDegree IN (:...teamProjectDegree)', {
+        teamProjectDegree: filterHr.teamProjectDegree,
+      });
+    }
+
+    if (filterHr.expectedTypeWork) {
+      queryBuilder.andWhere('profile.expectedTypeWork = :expectedTypeWork', {
+        expectedTypeWork: filterHr.expectedTypeWork,
+      });
+    }
+
+    if (filterHr.expectedContractType) {
+      queryBuilder.andWhere('profile.expectedContractType = :expectedContractType', {
+        expectedContractType: filterHr.expectedContractType,
+      });
+    }
+
+    if (filterHr.expectedSalary) {
+      const [minSalary, maxSalary] = filterHr.expectedSalary;
+      queryBuilder.andWhere('profile.expectedSalary >= :minSalary', {
+        minSalary,
+      });
+      queryBuilder.andWhere('profile.expectedSalary <= :maxSalary', {
+        maxSalary,
+      });
+    }
+
+    if (filterHr.canTakeApprenticeship !== undefined) {
+      queryBuilder.andWhere('profile.canTakeApprenticeship = :canTakeApprenticeship', {
+        canTakeApprenticeship: filterHr.canTakeApprenticeship,
+      });
+    }
+
+    if (filterHr.monthsOfCommercialExp) {
+      queryBuilder.andWhere('profile.monthsOfCommercialExp >= :monthsOfCommercialExp', {
+        monthsOfCommercialExp: filterHr.monthsOfCommercialExp,
+      });
+    }
+
+    return queryBuilder.getMany()
+  }
+
+
 
   findOne(id: number) {
     return `This action returns a #${id} student`;

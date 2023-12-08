@@ -1,7 +1,8 @@
-import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Body, Patch, Param, Delete, Post} from '@nestjs/common';
 import { StudentService } from './student.service';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
 import { StudentStatus } from '../types/students';
+import {FilterHrDto} from "./dto/filter-hr.dto";
 
 @Controller('student')
 export class StudentController {
@@ -31,10 +32,15 @@ export class StudentController {
   findAll() {
     return this.studentService.findAll();
   }
-
   @Get('hrstudentlist')
   findAllToHr() {
     return this.studentService.findAllToHr();
+  }
+  @Post('hrstudentlist')
+  findFilteredToHr(
+      @Body() filterHr: FilterHrDto
+  ) {
+    return this.studentService.findFilteredToHr(filterHr);
   }
 
   @Get('cv/:id')
