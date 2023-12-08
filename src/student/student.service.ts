@@ -6,8 +6,7 @@ import { Student } from './entities/student.entity';
 import { Profile } from './entities/profile.entity';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
 import { StudentStatus } from '../types/students';
-import {count} from "rxjs";
-import {GetStudentListToAdminPaginationResponse} from "../types/student/student-list-to-hr";
+
 
 @Injectable()
 export class StudentService {

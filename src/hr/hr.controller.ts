@@ -33,6 +33,17 @@ export class HrController {
      return this.hrService.addStudentToInterviewList(idHr, idStudent);
    }
 
+  @Patch('/removefrominterviews/:idHr/:idStudent')
+    removeStudentFromHr(
+        @Param('idHr') idHr: string,
+        @Param('idStudent') idStudent: string,
+    //   @Body()
+  ) {
+      return this.hrService.removeStudentFromHr(idHr, idStudent);
+    }
+
+
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateHrDto: UpdateHrDto) {
     return this.hrService.update(+id, updateHrDto);

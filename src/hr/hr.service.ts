@@ -74,6 +74,22 @@ export class HrService {
     }
   }
 
+  async removeStudentFromHr(idHr: string, idStudenta: string): Promise<void> {
+    const hr = await this.hrEntity.findOneOrFail({ where: { id: idHr } });
+
+    const indeksStudent = hr.studentsToInterviews.indexOf(idStudenta);
+    if (indeksStudent === -1) {
+      throw new Error('Student nie znajduje się na liście tego HR.');
+    }
+
+    const student = await this.studentEntity.findOneOrFail({ where: { id: idStudenta } });
+
+    student.status = StudentStatus.Available;
+    hr.studentsToInterviews.splice(indeksStudent, 1);
+
+    await this.studentEntity.save(student);
+    await this.hrEntity.save(hr);
+  }
 
   async getAllStudents(currentPage: number) {
     return this.studentService.findAllToHr(currentPage);
