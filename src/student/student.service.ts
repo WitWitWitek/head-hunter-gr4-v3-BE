@@ -6,6 +6,8 @@ import { Student } from './entities/student.entity';
 import { Profile } from './entities/profile.entity';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
 import { StudentStatus } from '../types/students';
+import {count} from "rxjs";
+import {GetStudentListToAdminPaginationResponse} from "../types/student/student-list-to-hr";
 
 @Injectable()
 export class StudentService {
@@ -15,11 +17,16 @@ export class StudentService {
     @InjectRepository(Profile) private profileEntity: Repository<Profile>,
   ) {}
 
-  async findAll() {
-    const activeStudents = await this.studentEntity.find({
-      where: { isActive: true },
+  async findAlltoAdmin(currentPage: number =1) {
+    const maxPerPage = 3;
+    // const currentPage = 1;
+
+    const [activeStudents, countStudents] = await this.studentEntity.findAndCount({
       relations: ['profile', 'user'],
+      skip: maxPerPage * (currentPage - 1),
+      take: maxPerPage,
     });
+    const totalPages = Math.ceil(countStudents / maxPerPage);
 
     activeStudents.forEach((student) => {
       // console.log(
@@ -27,17 +34,28 @@ export class StudentService {
       // );
     });
 
-    return activeStudents;
+    return {
+      activeStudents,
+      totalPages,
+    }
   }
 
-  async findAllToHr() {
-    const activeStudents = await this.studentEntity.find({
-      where: { isActive: true, status: Not(StudentStatus.Employed) },
+  async findAllToHr(currentPage: number =1) {
+    const maxPerPage = 3;
+    const [activeStudents, countStudents] = await this.studentEntity.findAndCount({
+      where: { isActive: true, status: StudentStatus.Available },
       relations: ['profile', 'user'],
+      skip: maxPerPage * (currentPage - 1),
+      take: maxPerPage,
     });
+    const totalPages = Math.ceil(countStudents / maxPerPage);
 
-    return activeStudents;
+    return {
+      activeStudents,
+      totalPages,
+    };
   }
+
 
   findOne(id: number) {
     return `This action returns a #${id} student`;

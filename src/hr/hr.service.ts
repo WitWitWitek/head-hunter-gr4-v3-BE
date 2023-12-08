@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Student } from '../student/entities/student.entity';
 import { Hr } from './entities/hr.entity';
 import {StudentStatus} from "../types/students";
+import {StudentService} from "../student/student.service";
 
 @Injectable()
 export class HrService {
@@ -15,6 +16,7 @@ export class HrService {
     @InjectRepository(User) private userEntity: Repository<User>,
     @InjectRepository(Student) private studentEntity: Repository<Student>,
     @InjectRepository(Hr) private hrEntity: Repository<Hr>,
+    private readonly studentService: StudentService,
   ) {}
 
   async addStudentToInterviewList(idHr: string, idStudent: string): Promise<void> {
@@ -73,8 +75,8 @@ export class HrService {
   }
 
 
-  findAll() {
-    return `This action returns all hr`;
+  async getAllStudents(currentPage: number) {
+    return this.studentService.findAllToHr(currentPage);
   }
 
   findOne(id: number) {

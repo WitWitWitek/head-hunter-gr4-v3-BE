@@ -27,14 +27,11 @@ export class StudentController {
     );
   }
 
-  @Get('all')
-  findAll() {
-    return this.studentService.findAll();
-  }
-
-  @Get('hrstudentlist')
-  findAllToHr() {
-    return this.studentService.findAllToHr();
+  @Get('alltoadmin/:pageNumber')
+  findAllToAdmin(
+      @Param('pageNumber') pageNumber: string,
+  ) {
+    return this.studentService.findAlltoAdmin(Number(pageNumber));
   }
 
   @Get('cv/:id')

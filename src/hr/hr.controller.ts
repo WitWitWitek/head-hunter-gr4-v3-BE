@@ -11,9 +11,11 @@ export class HrController {
   //   return this.hrService.createHr(createHrDto, UserRole.HR);
   // }
 
-  @Get()
-  findAll() {
-    return this.hrService.findAll();
+  @Get('studenstlist/:pageNumber')
+  findAll(
+      @Param('pageNumber') pageNumber: string,
+  ) {
+    return this.hrService.getAllStudents(Number(pageNumber));
   }
 
   @Get(':id')
