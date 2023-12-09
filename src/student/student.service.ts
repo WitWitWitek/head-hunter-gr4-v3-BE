@@ -150,10 +150,13 @@ export class StudentService {
   }
 
   async findOne(user: User) {
-    return this.userEntity.findOne({
+    const student = await this.userEntity.findOne({
       where: { id: user.id },
       relations: ['student', 'student.profile'],
     });
+    delete student.password;
+    delete student.loginToken;
+    return student;
   }
 
   async updateProfile(
@@ -177,9 +180,7 @@ export class StudentService {
       );
     }
 
-    const existingProfile: Profile = await this.profileEntity.findOne({
-      where: [{ githubUsername: updateProfileDto.githubUsername }],
-    });
+    const existingProfile: Profile = student.profile;
 
     const profile = new Profile();
     if (existingProfile) {

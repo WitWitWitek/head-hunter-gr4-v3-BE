@@ -7,9 +7,9 @@ export enum ExpectedTypeWork {
 }
 
 export enum ExpectedContractType {
-  UoP = 'UoP',
-  B2B = 'B2B',
-  UZ_UoD = 'UZ/UoD',
+  UoP = 'Tylko UoP',
+  B2B = 'Możliwe B2B',
+  UZ_UoD = 'Możliwe UZ/UoD',
   Any = 'Brak preferencji',
 }
 
@@ -31,4 +31,3 @@ export type StudentProfile = {
   workExperience: string;
   courses: string;
 };
-
