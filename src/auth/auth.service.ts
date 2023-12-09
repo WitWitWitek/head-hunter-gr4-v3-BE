@@ -40,6 +40,9 @@ export class AuthService {
 
     await this.updateHashLoginToken(user.id, refresh_token);
 
+    const relatedEntityId =
+      (user.student ? user?.student?.id : user?.hr?.id) ?? null;
+
     return res
       .cookie(TokenName.refresh_token, refresh_token, {
         httpOnly: true,
@@ -47,7 +50,7 @@ export class AuthService {
         secure: true,
         maxAge: 12 * 60 * 60 * 1000,
       })
-      .json({ role: user.role, access_token });
+      .json({ role: user.role, relatedEntityId, access_token });
   }
 
   async refresh(req: Request) {

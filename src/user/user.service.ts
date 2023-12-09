@@ -139,6 +139,7 @@ export class UserService {
       where: {
         email,
       },
+      relations: ['student', 'hr'],
     });
   }
 
