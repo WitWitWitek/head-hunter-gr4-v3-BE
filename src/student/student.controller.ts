@@ -75,11 +75,6 @@ export class StudentController {
     );
   }
 
-  @Get('cv/:id')
-  studentCV(@Param('id') id: string) {
-    return this.studentService.getStudentCV(id);
-  }
-
   @UseGuards(AccessTokenGuard)
   @Get('/get-one')
   findOne(@Req() req: Request) {

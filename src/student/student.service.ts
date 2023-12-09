@@ -219,39 +219,6 @@ export class StudentService {
     return 'Zmieniono status na zatrudniony';
   }
 
-  async getStudentCV(id: string) {
-    const student = await this.studentEntity.findOne({
-      where: { id: id },
-      relations: ['profile', 'user'],
-    });
-    if (!student) {
-      return `Student with ID ${id} not found.`;
-    }
-
-    const studentCV = {
-      firstName: student.profile.firstName,
-      lastName: student.profile.lastName,
-      bio: student.profile.bio,
-      githubUsername: student.profile.githubUsername,
-      courseCompletion: student.courseCompletion,
-      courseEngagement: student.courseEngagement,
-      projectDegree: student.projectDegree,
-      teamProjectDegree: student.teamProjectDegree,
-      portfolioUrls: student.profile.portfolioUrls,
-      bonusProjectUrls: student.bonusProjectUrls,
-      projectUrls: student.profile.projectUrls,
-      expectedTypeWork: student.profile.expectedTypeWork,
-      targetWorkCity: student.profile.targetWorkCity,
-      expectedContractType: student.profile.expectedContractType,
-      expectedSalary: student.profile.expectedSalary,
-      canTakeApprenticeship: student.profile.canTakeApprenticeship,
-      monthsOfCommercialExp: student.profile.monthsOfCommercialExp,
-      education: student.profile.education,
-      workExperience: student.profile.workExperience,
-    };
-    return studentCV;
-  }
-
   remove(id: number) {
     return `This action removes a #${id} student`;
   }
