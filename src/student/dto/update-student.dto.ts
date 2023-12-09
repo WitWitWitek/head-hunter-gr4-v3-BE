@@ -1,4 +1,4 @@
-import { IsEnum, IsString, Min } from 'class-validator';
+import { IsEmail, IsEnum, IsString, Min } from 'class-validator';
 import {
   ExpectedContractType,
   ExpectedTypeWork,
@@ -6,6 +6,9 @@ import {
 } from 'src/types/student/profile';
 
 export class UpdatetudentProfileDto implements StudentProfile {
+  @IsEmail()
+  email: string;
+
   phone: string;
 
   @IsString()

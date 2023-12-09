@@ -10,7 +10,7 @@ import { In } from 'typeorm';
 import { MailService } from '../mail/mail.service';
 import { hashData } from '../utils';
 import { Hr } from '../hr/entities/hr.entity';
-import { CreateHrDto, CreateUserHrToAdd } from '../hr/dto/create-hr.dto';
+import { CreateHrDto } from '../hr/dto/create-hr.dto';
 
 @Injectable()
 export class UserService {
@@ -141,6 +141,29 @@ export class UserService {
       },
       relations: ['student', 'hr'],
     });
+  }
+
+  async updateUserEmail(oldEmail: string, newEmail: string) {
+    const foundUser = await this.userEntity.findOne({
+      where: {
+        email: newEmail,
+      },
+    });
+    if (foundUser) {
+      throw new BadRequestException('Użytkownik o takim mailu juz istnieje!');
+    }
+
+    const userToUpdate = await this.userEntity.findOne({
+      where: {
+        email: oldEmail,
+      },
+    });
+    if (!userToUpdate) {
+      throw new BadRequestException('Użytkownik o takim mailu nie istnieje!');
+    }
+
+    userToUpdate.email = newEmail;
+    await userToUpdate.save();
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

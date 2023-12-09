@@ -1,19 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../user/entities/user.entity';
 import { Not, Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { Profile } from './entities/profile.entity';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
 import { StudentStatus } from '../types/students';
 import { FilterHrDto } from './dto/filter-hr.dto';
+import { UserService } from 'src/user/user.service';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class StudentService {
   constructor(
     @InjectRepository(Student) private studentEntity: Repository<Student>,
-    @InjectRepository(User) private userEntity: Repository<User>,
     @InjectRepository(Profile) private profileEntity: Repository<Profile>,
+    private readonly userService: UserService,
   ) {}
 
   async findAll() {
@@ -154,6 +155,7 @@ export class StudentService {
   async updateProfile(
     studentId: string,
     updateProfileDto: UpdatetudentProfileDto,
+    user: User,
   ) {
     const student: Student = await this.studentEntity.findOne({
       where: { id: studentId },
@@ -161,6 +163,13 @@ export class StudentService {
     if (!student) {
       throw new BadRequestException(
         `Nie mamy w bazie studenta o id: ${studentId}.`,
+      );
+    }
+
+    if (updateProfileDto.email) {
+      await this.userService.updateUserEmail(
+        user.email,
+        updateProfileDto.email,
       );
     }
 
