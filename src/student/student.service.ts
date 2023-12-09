@@ -148,8 +148,14 @@ export class StudentService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} student`;
+  findOne(studentId: string) {
+    return this.studentEntity
+      .createQueryBuilder('student')
+      .leftJoinAndSelect('student.profile', 'profile')
+      .where('student.id = :id', {
+        id: studentId,
+      })
+      .getOne();
   }
 
   async updateProfile(
@@ -166,7 +172,7 @@ export class StudentService {
       );
     }
 
-    if (updateProfileDto.email) {
+    if (updateProfileDto.email !== user.email) {
       await this.userService.updateUserEmail(
         user.email,
         updateProfileDto.email,

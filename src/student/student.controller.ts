@@ -80,9 +80,9 @@ export class StudentController {
     return this.studentService.getStudentCV(id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.studentService.findOne(+id);
+  @Get(':studentId')
+  findOne(@Param('studentId') studentId: string) {
+    return this.studentService.findOne(studentId);
   }
 
   @Delete(':id')
