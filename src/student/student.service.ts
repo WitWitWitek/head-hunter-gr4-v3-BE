@@ -14,6 +14,7 @@ export class StudentService {
   constructor(
     @InjectRepository(Student) private studentEntity: Repository<Student>,
     @InjectRepository(Profile) private profileEntity: Repository<Profile>,
+    @InjectRepository(User) private userEntity: Repository<User>,
     private readonly userService: UserService,
   ) {}
 
@@ -148,14 +149,11 @@ export class StudentService {
     };
   }
 
-  findOne(studentId: string) {
-    return this.studentEntity
-      .createQueryBuilder('student')
-      .leftJoinAndSelect('student.profile', 'profile')
-      .where('student.id = :id', {
-        id: studentId,
-      })
-      .getOne();
+  async findOne(user: User) {
+    return this.userEntity.findOne({
+      where: { id: user.id },
+      relations: ['student', 'student.profile'],
+    });
   }
 
   async updateProfile(

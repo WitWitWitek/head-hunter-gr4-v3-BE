@@ -80,9 +80,10 @@ export class StudentController {
     return this.studentService.getStudentCV(id);
   }
 
-  @Get(':studentId')
-  findOne(@Param('studentId') studentId: string) {
-    return this.studentService.findOne(studentId);
+  @UseGuards(AccessTokenGuard)
+  @Get('/get-one')
+  findOne(@Req() req: Request) {
+    return this.studentService.findOne(req.user as User);
   }
 
   @Delete(':id')
