@@ -1,19 +1,21 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../user/entities/user.entity';
 import { Not, Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { Profile } from './entities/profile.entity';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
 import { StudentStatus } from '../types/students';
 import { FilterHrDto } from './dto/filter-hr.dto';
+import { UserService } from 'src/user/user.service';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class StudentService {
   constructor(
     @InjectRepository(Student) private studentEntity: Repository<Student>,
-    @InjectRepository(User) private userEntity: Repository<User>,
     @InjectRepository(Profile) private profileEntity: Repository<Profile>,
+    @InjectRepository(User) private userEntity: Repository<User>,
+    private readonly userService: UserService,
   ) {}
 
   async findAll() {
@@ -147,13 +149,20 @@ export class StudentService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} student`;
+  async findOne(user: User) {
+    const student = await this.userEntity.findOne({
+      where: { id: user.id },
+      relations: ['student', 'student.profile'],
+    });
+    delete student.password;
+    delete student.loginToken;
+    return student;
   }
 
   async updateProfile(
     studentId: string,
     updateProfileDto: UpdatetudentProfileDto,
+    user: User,
   ) {
     const student: Student = await this.studentEntity.findOne({
       where: { id: studentId },
@@ -164,9 +173,14 @@ export class StudentService {
       );
     }
 
-    const existingProfile: Profile = await this.profileEntity.findOne({
-      where: [{ githubUsername: updateProfileDto.githubUsername }],
-    });
+    if (updateProfileDto.email !== user.email) {
+      await this.userService.updateUserEmail(
+        user.email,
+        updateProfileDto.email,
+      );
+    }
+
+    const existingProfile: Profile = student.profile;
 
     const profile = new Profile();
     if (existingProfile) {
@@ -203,39 +217,6 @@ export class StudentService {
     );
 
     return 'Zmieniono status na zatrudniony';
-  }
-
-  async getStudentCV(id: string) {
-    const student = await this.studentEntity.findOne({
-      where: { id: id },
-      relations: ['profile', 'user'],
-    });
-    if (!student) {
-      return `Student with ID ${id} not found.`;
-    }
-
-    const studentCV = {
-      firstName: student.profile.firstName,
-      lastName: student.profile.lastName,
-      bio: student.profile.bio,
-      githubUsername: student.profile.githubUsername,
-      courseCompletion: student.courseCompletion,
-      courseEngagement: student.courseEngagement,
-      projectDegree: student.projectDegree,
-      teamProjectDegree: student.teamProjectDegree,
-      portfolioUrls: student.profile.portfolioUrls,
-      bonusProjectUrls: student.bonusProjectUrls,
-      projectUrls: student.profile.projectUrls,
-      expectedTypeWork: student.profile.expectedTypeWork,
-      targetWorkCity: student.profile.targetWorkCity,
-      expectedContractType: student.profile.expectedContractType,
-      expectedSalary: student.profile.expectedSalary,
-      canTakeApprenticeship: student.profile.canTakeApprenticeship,
-      monthsOfCommercialExp: student.profile.monthsOfCommercialExp,
-      education: student.profile.education,
-      workExperience: student.profile.workExperience,
-    };
-    return studentCV;
   }
 
   remove(id: number) {
