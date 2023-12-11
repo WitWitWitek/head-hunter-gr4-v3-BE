@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,7 +17,11 @@ import { CreateStudentDto } from '../student/dto/create-student.dto';
 import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { RolesGuard } from 'src/shared/guards/roles.guard';
-import { CreateHrDto } from '../hr/dto/create-hr.dto';
+import { ConfirmationTokenGuard } from './guard/confirmation-token.guard';
+import { Request } from 'express';
+import { User } from './entities/user.entity';
+import { ConfirmUserDto } from './dto/confirm-student.dto';
+import { CreateHrDto } from 'src/hr/dto/create-hr.dto';
 
 @Controller('user')
 export class UserController {
@@ -35,6 +40,15 @@ export class UserController {
   @Post('/add-admin')
   createAdmin(@Body() createUserDto: CreateUserDto) {
     return this.userService.createAdmin(createUserDto);
+  }
+
+  @UseGuards(ConfirmationTokenGuard)
+  @Patch('/confirm/:confirmation_token')
+  confirmUser(@Req() req: Request, @Body() confirmStudentDto: ConfirmUserDto) {
+    return this.userService.confirmUser(
+      req.user as User,
+      confirmStudentDto.password,
+    );
   }
 
   @Roles(UserRole.Admin)

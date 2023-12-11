@@ -1,3 +1,4 @@
+import { Hr } from 'src/hr/entities/hr.entity';
 import { Student } from 'src/student/entities/student.entity';
 import { UserRole } from 'src/types';
 import {
@@ -14,13 +15,6 @@ import {
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  // @Column({
-  //   nullable: false,
-  //   length: 50,
-  //   unique: true,
-  // })
-  // username: string;
 
   @Column({
     nullable: false,
@@ -59,4 +53,9 @@ export class User extends BaseEntity {
     onDelete: 'CASCADE',
   })
   student: Student;
+
+  @OneToOne(() => Hr, (hr) => hr.user, {
+    onDelete: 'CASCADE',
+  })
+  hr: Hr;
 }

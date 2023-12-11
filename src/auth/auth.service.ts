@@ -18,7 +18,9 @@ export class AuthService {
     const { email, password } = signInDto;
 
     const user = await this.validateUserByEmail(email);
-
+    if (!user.confirmed) {
+      throw new UnauthorizedException('Potwierdź swoje konto.');
+    }
     const passwordMatch = await verifyHashedData(password, user.password);
 
     if (!passwordMatch) {
@@ -38,6 +40,9 @@ export class AuthService {
 
     await this.updateHashLoginToken(user.id, refresh_token);
 
+    const relatedEntityId =
+      (user.student ? user?.student?.id : user?.hr?.id) ?? null;
+
     return res
       .cookie(TokenName.refresh_token, refresh_token, {
         httpOnly: true,
@@ -45,7 +50,7 @@ export class AuthService {
         secure: true,
         maxAge: 12 * 60 * 60 * 1000,
       })
-      .json({ role: user.role, access_token });
+      .json({ role: user.role, relatedEntityId, access_token });
   }
 
   async refresh(req: Request) {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -10,7 +10,7 @@ import { In } from 'typeorm';
 import { MailService } from '../mail/mail.service';
 import { hashData } from '../utils';
 import { Hr } from '../hr/entities/hr.entity';
-import { CreateHrDto, CreateUserHrToAdd } from '../hr/dto/create-hr.dto';
+import { CreateHrDto } from '../hr/dto/create-hr.dto';
 
 @Injectable()
 export class UserService {
@@ -55,6 +55,11 @@ export class UserService {
       return user;
     });
     await this.userEntity.save(userStudentsToAdd);
+
+    for await (const newUser of userStudentsToAdd) {
+      await this.mailService.sendUserConfirmation(newUser);
+    }
+
     return {
       message: `Added ${studentsToAdd.length} of ${students.length}.`,
     };
@@ -74,29 +79,51 @@ export class UserService {
     await this.userEntity.save(adminUser);
   }
 
-  async createHr(newHr: CreateHrDto, role: UserRole): Promise<string> {
-    const { hrs } = newHr;
-    const emails = hrs.map((hr) => hr.email);
-    const existingHrs = await this.hrEntity.find({
+  async confirmUser(user: User, password: string) {
+    const hashedPassword = await hashData(password);
+    if (user.confirmed) {
+      throw new BadRequestException(
+        'Użytkownik został wcześniej zweryfikowany.',
+      );
+    }
+    user.password = hashedPassword;
+    user.confirmed = true;
+
+    await this.userEntity.save(user);
+    return {
+      message: `${user.email} successfully confirmed`,
+    };
+  }
+
+  async createHr(newHr: CreateHrDto, role: UserRole) {
+    const existingHr = await this.userEntity.findOne({
       where: {
-        email: In(emails),
+        email: newHr.email,
+        role: role,
       },
     });
-    const existingHrsEmails = existingHrs.map((existingHr) => existingHr.email);
-    const hrToAdd = hrs.filter(
-      (newHr) => !existingHrsEmails.includes(newHr.email),
-    );
-    await this.hrEntity.save(hrToAdd);
+    if (existingHr) {
+      throw new BadRequestException(
+        `Użytkownik z emailem: ${existingHr.email} istnieje!`,
+      );
+    }
 
-    const userHrsToAdd: CreateUserHrToAdd[] = hrToAdd.map((hr) => ({
-      email: hr.email,
-      role: role,
-    }));
-    console.log('data', Date());
-    //await this.mailService.sendUserConfirmation(user);
-    await this.userEntity.save(userHrsToAdd);
+    const newHrUser = new User();
+    newHrUser.email = newHr.email;
+    newHrUser.role = role;
+    await newHrUser.save();
 
-    return `Added ${hrToAdd.length} of ${hrs.length}.`;
+    const hr = new Hr();
+    hr.user = newHrUser;
+    hr.fullName = newHr.fullName;
+    hr.company = newHr.company;
+    hr.maxReservedStudents = newHr.maxReservedStudents;
+    await hr.save();
+
+    await this.mailService.sendUserConfirmation(newHrUser);
+    return {
+      message: `${newHr.email} dodany do listy HR`,
+    };
   }
 
   findAll() {
@@ -112,7 +139,31 @@ export class UserService {
       where: {
         email,
       },
+      relations: ['student', 'hr'],
     });
+  }
+
+  async updateUserEmail(oldEmail: string, newEmail: string) {
+    const foundUser = await this.userEntity.findOne({
+      where: {
+        email: newEmail,
+      },
+    });
+    if (foundUser) {
+      throw new BadRequestException('Użytkownik o takim mailu juz istnieje!');
+    }
+
+    const userToUpdate = await this.userEntity.findOne({
+      where: {
+        email: oldEmail,
+      },
+    });
+    if (!userToUpdate) {
+      throw new BadRequestException('Użytkownik o takim mailu nie istnieje!');
+    }
+
+    userToUpdate.email = newEmail;
+    await userToUpdate.save();
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
