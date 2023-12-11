@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UpdateHrDto } from './dto/update-hr.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -17,17 +16,17 @@ export class HrService {
     private readonly studentService: StudentService,
   ) {}
 
-  async addStudentToInterviewList(
-    hrId: string,
-    studentId: string,
-  ): Promise<void> {
+  async addStudentToInterviewList(hrId: string, studentId: string) {
     await this.processInterviews();
 
     const hr = await this.hrEntity.findOneOrFail({
       where: { id: hrId },
+      relations: ['students'],
     });
+
     const student = await this.studentEntity.findOneOrFail({
       where: { id: studentId, isActive: true },
+      relations: ['profile'],
     });
 
     if (hr.students.length >= hr.maxReservedStudents) {
@@ -40,6 +39,9 @@ export class HrService {
       student.hr = hr;
       student.status = StudentStatus.InInterview;
       await this.studentEntity.save(student);
+      return {
+        message: `Student ${student.profile.githubUsername} dodany do rozmowy kwalifikacyjnej z ${hr.fullName}`,
+      };
     } else {
       throw new BadRequestException('Student nie jest dostępny do rozmowy.');
     }
@@ -72,38 +74,38 @@ export class HrService {
     // }
   }
 
-  // async removeStudentFromHr(idHr: string, idStudenta: string): Promise<void> {
-  //   const hr = await this.hrEntity.findOneOrFail({ where: { id: idHr } });
+  async removeStudentFromHr(hrId: string, studentId: string) {
+    const hr = await this.hrEntity.findOne({
+      where: { id: hrId },
+      relations: ['students'],
+    });
 
-  //   const indeksStudent = hr.students.indexOf(idStudenta);
-  //   if (indeksStudent === -1) {
-  //     throw new Error('Student nie znajduje się na liście tego HR.');
-  //   }
+    const studentIndex = hr.students.findIndex(
+      (student) => student.id === studentId,
+    );
+    if (studentIndex === -1) {
+      throw new BadRequestException(
+        'Student nie znajduje się na liście tego HR.',
+      );
+    }
 
-  //   const student = await this.studentEntity.findOneOrFail({
-  //     where: { id: idStudenta },
-  //   });
+    const student = await this.studentEntity.findOneOrFail({
+      where: { id: studentId },
+      relations: ['profile'],
+    });
 
-  //   student.status = StudentStatus.Available;
-  //   hr.students.splice(indeksStudent, 1);
+    hr.students.splice(studentIndex, 1);
+    student.status = StudentStatus.Available;
 
-  //   await this.studentEntity.save(student);
-  //   await this.hrEntity.save(hr);
-  // }
+    await this.studentEntity.save(student);
+    await this.hrEntity.save(hr);
+
+    return {
+      message: `Student ${student.profile.githubUsername} usunięty z rozmowy kwalifikacyjnej z ${hr.fullName}`,
+    };
+  }
 
   async getAllStudents(currentPage: number) {
     return this.studentService.findAllToHr(currentPage);
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} hr`;
-  }
-
-  update(id: number, updateHrDto: UpdateHrDto) {
-    return `This action updates a #${id} hr`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} hr`;
   }
 }
