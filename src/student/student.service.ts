@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { Profile } from './entities/profile.entity';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
@@ -18,28 +18,38 @@ export class StudentService {
     private readonly userService: UserService,
   ) {}
 
-  async findAll() {
-    const activeStudents = await this.studentEntity.find({
-      where: { isActive: true },
-      relations: ['profile', 'user'],
-    });
+  async findAlltoAdmin(currentPage: number = 1) {
+    const maxPerPage = 3;
 
-    activeStudents.forEach((student) => {
-      console.log(
-        `Student ID: ${student.id}, Updated At: ${student.user.updatedAt}`,
-      );
-    });
+    const [activeStudents, countStudents] =
+      await this.studentEntity.findAndCount({
+        relations: ['profile', 'user'],
+        skip: maxPerPage * (currentPage - 1),
+        take: maxPerPage,
+      });
+    const totalPages = Math.ceil(countStudents / maxPerPage);
 
-    return activeStudents;
+    return {
+      activeStudents,
+      totalPages,
+    };
   }
 
-  async findAllToHr() {
-    const activeStudents = await this.studentEntity.find({
-      where: { isActive: true, status: Not(StudentStatus.Employed) },
-      relations: ['profile', 'user'],
-    });
+  async findAllToHr(currentPage: number = 1) {
+    const maxPerPage = 3;
+    const [activeStudents, countStudents] =
+      await this.studentEntity.findAndCount({
+        where: { isActive: true, status: StudentStatus.Available },
+        relations: ['profile', 'user'],
+        skip: maxPerPage * (currentPage - 1),
+        take: maxPerPage,
+      });
+    const totalPages = Math.ceil(countStudents / maxPerPage);
 
-    return activeStudents;
+    return {
+      activeStudents,
+      totalPages,
+    };
   }
 
   async findFilteredToHr(

@@ -1,4 +1,13 @@
 import {ExpectedContractType, ExpectedTypeWork} from "./profile";
+import {Student} from "../../student/entities/student.entity";
+
+export interface GetStudentListToAdminPaginationResponse {
+    surdents: Student[];
+    totalPages: number;
+}
+
+
+
 
 export type StudentListToHr = {
 

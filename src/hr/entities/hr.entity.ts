@@ -5,9 +5,11 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { IsInt, Max, Min } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
+import { Student } from 'src/student/entities/student.entity';
 
 @Entity('hr')
 export class Hr extends BaseEntity {
@@ -33,6 +35,9 @@ export class Hr extends BaseEntity {
   @Min(1)
   @Max(999)
   maxReservedStudents: number;
+
+  @OneToMany(() => Student, (student) => student.hr)
+  students: Student[];
 
   @OneToOne(() => User, (user) => user.hr, {
     onDelete: 'CASCADE',

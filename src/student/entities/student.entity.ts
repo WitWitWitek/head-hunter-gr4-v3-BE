@@ -5,10 +5,13 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
+  ManyToOne,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Min, Max, IsInt } from 'class-validator';
 import { Profile } from './profile.entity';
 import { User } from 'src/user/entities/user.entity';
+import { Hr } from 'src/hr/entities/hr.entity';
 
 enum StudentStatus {
   Available = 'Dostępny',
@@ -70,6 +73,9 @@ export class Student extends BaseEntity {
   })
   isActive: boolean;
 
+  @UpdateDateColumn()
+  interviewAddedAt: Date;
+
   @OneToOne(() => Profile, (profile) => profile.student, {
     onDelete: 'CASCADE',
   })
@@ -81,4 +87,7 @@ export class Student extends BaseEntity {
   })
   @JoinColumn()
   user: User;
+
+  @ManyToOne(() => Hr, (hr) => hr.students)
+  hr: Hr;
 }
