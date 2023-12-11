@@ -16,7 +16,7 @@ import { CreateStudentDto } from '../student/dto/create-student.dto';
 import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { RolesGuard } from 'src/shared/guards/roles.guard';
-import {CreateHrDto} from "../hr/dto/create-hr.dto";
+import { CreateHrDto } from '../hr/dto/create-hr.dto';
 
 @Controller('user')
 export class UserController {

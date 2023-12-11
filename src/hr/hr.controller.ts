@@ -12,9 +12,7 @@ export class HrController {
   // }
 
   @Get('studenstlist/:pageNumber')
-  findAll(
-      @Param('pageNumber') pageNumber: string,
-  ) {
+  findAll(@Param('pageNumber') pageNumber: string) {
     return this.hrService.getAllStudents(Number(pageNumber));
   }
 
@@ -23,26 +21,23 @@ export class HrController {
     return this.hrService.findOne(+id);
   }
 
-
   @Patch('/interviews/:idHr/:idStudent')
   addStudentToInterviewList(
-      @Param('idHr') idHr: string,
-      @Param('idStudent') idStudent: string,
-   //   @Body()
-  ) {
-     return this.hrService.addStudentToInterviewList(idHr, idStudent);
-   }
-
-  @Patch('/removefrominterviews/:idHr/:idStudent')
-    removeStudentFromHr(
-        @Param('idHr') idHr: string,
-        @Param('idStudent') idStudent: string,
+    @Param('idHr') idHr: string,
+    @Param('idStudent') idStudent: string,
     //   @Body()
   ) {
-      return this.hrService.removeStudentFromHr(idHr, idStudent);
-    }
+    return this.hrService.addStudentToInterviewList(idHr, idStudent);
+  }
 
-
+  // @Patch('/removefrominterviews/:idHr/:idStudent')
+  // removeStudentFromHr(
+  //   @Param('idHr') idHr: string,
+  //   @Param('idStudent') idStudent: string,
+  //   //   @Body()
+  // ) {
+  //   return this.hrService.removeStudentFromHr(idHr, idStudent);
+  // }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateHrDto: UpdateHrDto) {
