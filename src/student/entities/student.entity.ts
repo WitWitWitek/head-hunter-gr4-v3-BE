@@ -5,8 +5,8 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
-  CreateDateColumn,
   ManyToOne,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Min, Max, IsInt } from 'class-validator';
 import { Profile } from './profile.entity';
@@ -73,7 +73,7 @@ export class Student extends BaseEntity {
   })
   isActive: boolean;
 
-  @CreateDateColumn()
+  @UpdateDateColumn()
   interviewAddedAt: Date;
 
   @OneToOne(() => Profile, (profile) => profile.student, {

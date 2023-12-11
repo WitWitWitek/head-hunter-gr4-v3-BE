@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, LessThan } from 'typeorm';
 import { Student } from '../student/entities/student.entity';
 import { Hr } from './entities/hr.entity';
 import { StudentStatus } from '../types/students';
@@ -47,31 +47,18 @@ export class HrService {
     }
   }
 
-  async processInterviews(): Promise<void> {
-    // const allHrs = await this.hrEntity.find();
-    // for (const hr of allHrs) {
-    // const studentsToInterviews = hr.students;
-    // for (const studentId of studentsToInterviews) {
-    //   const student = await this.studentEntity.findOneOrFail({
-    //     where: { id: studentId },
-    //   });
-    //   // Sprawdź, czy minęło 10 dni od dodania studenta do listy "Do rozmowy"
-    //   const tenDaysAgo = new Date();
-    //   tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
-    //   if (
-    //     student.status === StudentStatus.InInterview &&
-    //     student.interviewAddedAt < tenDaysAgo
-    //   ) {
-    //     // Automatyczna zmiana statusu studenta na "Dostępny"
-    //     student.status = StudentStatus.Available;
-    //     hr.studentsToInterviews = hr.studentsToInterviews.filter(
-    //       (id) => id !== studentId,
-    //     );
-    //     await this.studentEntity.save(student);
-    //     await this.hrEntity.save(hr);
-    //   }
-    // }
-    // }
+  async processInterviews() {
+    const tenDaysAgo = new Date();
+    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+    const students = await this.studentEntity.find({
+      where: { interviewAddedAt: LessThan(tenDaysAgo) },
+    });
+
+    for await (const student of students) {
+      student.hr = null;
+      student.status = StudentStatus.Available;
+      await student.save();
+    }
   }
 
   async removeStudentFromHr(hrId: string, studentId: string) {
