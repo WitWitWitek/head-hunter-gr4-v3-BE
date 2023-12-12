@@ -57,12 +57,13 @@ export class StudentService {
     page: number,
     limit: number,
   ): Promise<{
-    students: Student[];
+    students: User[];
     studentsCount: number;
     lastPage: number;
   }> {
-    const queryBuilder = this.studentEntity
-      .createQueryBuilder('student')
+    const queryBuilder = this.userEntity
+      .createQueryBuilder('user')
+      .innerJoinAndSelect('user.student', 'student', 'student.userId = user.id')
       .leftJoinAndSelect('student.profile', 'profile')
       .take(limit)
       .skip((page - 1) * limit);
@@ -142,10 +143,10 @@ export class StudentService {
         },
       );
     }
-    queryBuilder.andWhere('student.isActive = :isActive', { isActive: true });
-    queryBuilder.andWhere('student.status != :status', {
-      status: StudentStatus.Employed,
-    });
+    // queryBuilder.andWhere('student.isActive = :isActive', { isActive: true });
+    // queryBuilder.andWhere('student.status != :status', {
+    //   status: StudentStatus.Employed,
+    // });
     const students = await queryBuilder.getMany();
 
     const studentsCount = await queryBuilder.getCount();
