@@ -19,28 +19,33 @@ export class HrService {
   async addStudentToInterviewList(hrId: string, studentId: string) {
     await this.processInterviews();
 
-    const hr = await this.hrEntity.findOneOrFail({
+    const hrUser = await this.userEntity.findOneOrFail({
       where: { id: hrId },
-      relations: ['students'],
+      relations: ['hr'],
     });
 
+    hrUser.hr.students;
+
     const student = await this.studentEntity.findOneOrFail({
-      where: { id: studentId, isActive: true },
+      where: { id: studentId },
       relations: ['profile'],
     });
 
-    if (hr.students.length >= hr.maxReservedStudents) {
+    if (
+      hrUser.hr.students &&
+      hrUser.hr.students.length >= hrUser.hr.maxReservedStudents
+    ) {
       throw new BadRequestException(
         'Przekroczono maksymalną liczbę studentów do rozmowy.',
       );
     }
 
     if (student.status === StudentStatus.Available) {
-      student.hr = hr;
+      student.hr = hrUser.hr;
       student.status = StudentStatus.InInterview;
       await this.studentEntity.save(student);
       return {
-        message: `Student ${student.profile.githubUsername} dodany do rozmowy kwalifikacyjnej z ${hr.fullName}`,
+        message: `Student ${student.profile.githubUsername} dodany do rozmowy kwalifikacyjnej z ${hrUser.hr.fullName}`,
       };
     } else {
       throw new BadRequestException('Student nie jest dostępny do rozmowy.');
@@ -62,37 +67,21 @@ export class HrService {
   }
 
   async removeStudentFromHr(hrId: string, studentId: string) {
-    const hr = await this.hrEntity.findOne({
-      where: { id: hrId },
-      relations: ['students'],
-    });
-
-    const studentIndex = hr.students.findIndex(
-      (student) => student.id === studentId,
-    );
-    if (studentIndex === -1) {
-      throw new BadRequestException(
-        'Student nie znajduje się na liście tego HR.',
-      );
-    }
-
     const student = await this.studentEntity.findOneOrFail({
       where: { id: studentId },
       relations: ['profile'],
     });
-
-    hr.students.splice(studentIndex, 1);
+    student.hr = null;
     student.status = StudentStatus.Available;
 
     await this.studentEntity.save(student);
-    await this.hrEntity.save(hr);
 
     return {
-      message: `Student ${student.profile.githubUsername} usunięty z rozmowy kwalifikacyjnej z ${hr.fullName}`,
+      message: `Student ${student.profile.githubUsername} usunięty z rozmowy kwalifikacyjnej`,
     };
   }
 
-  async getAllStudents(currentPage: number) {
-    return this.studentService.findAllToHr(currentPage);
+  async getAllStudents(hrUser: User) {
+    return this.studentService.findAllToHr(hrUser);
   }
 }

@@ -58,11 +58,9 @@ export class StudentController {
     return this.studentService.findAlltoAdmin(Number(pageNumber));
   }
 
-  @Get('hrstudentlist')
-  findAllToHr() {
-    return this.studentService.findAllToHr();
-  }
-
+  @Roles(UserRole.HR)
+  @UseGuards(RolesGuard)
+  @UseGuards(AccessTokenGuard)
   @Post('hrstudentlist')
   findFilteredToHr(
     @Body() filterHr: FilterHrDto,
