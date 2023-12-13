@@ -40,7 +40,7 @@ export class UserService {
     );
 
       if (studentsToAdd.length === 0) {
-        throw new BadRequestException('All provided students already exist.');
+        throw new BadRequestException('Taki student już istnieje.');
       }
 
     const studentsEntites = studentsToAdd.map((studentDto) => {
@@ -191,7 +191,7 @@ export class UserService {
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    return `Zaktualizowano użytkownika o meilu #${id}`;
   }
 
   updateLoginToken(id: string, hashedRefreshToken?: string) {
