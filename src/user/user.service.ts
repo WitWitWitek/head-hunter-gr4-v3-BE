@@ -22,21 +22,26 @@ export class UserService {
   ) {}
 
   async createStudent(newStudents: CreateStudentDto, role: UserRole) {
-    const { students } = newStudents;
-    const emails = students.map((student) => student.email);
-    const existingStudents = await this.userEntity.find({
-      where: {
-        email: In(emails),
-      },
-    });
+    try {
+      const { students } = newStudents;
+      const emails = students.map((student) => student.email);
+      const existingStudents = await this.userEntity.find({
+        where: {
+          email: In(emails),
+        },
+      });
 
-    const existingStudentsEmails = existingStudents.map(
+      const existingStudentsEmails = existingStudents.map(
       (existingStudent) => existingStudent.email,
     );
 
     const studentsToAdd = students.filter(
       (newStudent) => !existingStudentsEmails.includes(newStudent.email),
     );
+
+      if (studentsToAdd.length === 0) {
+        throw new BadRequestException('All provided students already exist.');
+      }
 
     const studentsEntites = studentsToAdd.map((studentDto) => {
       const student = new Student();
@@ -62,8 +67,18 @@ export class UserService {
 
     return {
       message: `Added ${studentsToAdd.length} of ${students.length}.`,
+      addedCount: studentsToAdd.length,
     };
+  } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      } else {
+        throw new BadRequestException('Wystąpił nieoczekiwany błąd.');
+      }
+    }
   }
+
+
 
   async createAdmin(createUserDto: CreateUserDto) {
     const { password, email } = createUserDto;
@@ -80,19 +95,28 @@ export class UserService {
   }
 
   async confirmUser(user: User, password: string) {
-    const hashedPassword = await hashData(password);
-    if (user.confirmed) {
-      throw new BadRequestException(
-        'Użytkownik został wcześniej zweryfikowany.',
-      );
-    }
-    user.password = hashedPassword;
-    user.confirmed = true;
+    try {
+      const hashedPassword = await hashData(password);
 
-    await this.userEntity.save(user);
-    return {
-      message: `${user.email} successfully confirmed`,
-    };
+      if (user.confirmed) {
+        throw new BadRequestException(
+            'Użytkownik został wcześniej zweryfikowany.'
+        );
+      }
+
+      user.password = hashedPassword;
+      user.confirmed = true;
+      await this.userEntity.save(user);
+      return {
+        message: `${user.email} pomyślnie zweryfikowany`,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      } else {
+        throw new BadRequestException('Wystąpił błąd podczas potwierdzania użytkownika.');
+      }
+    }
   }
 
   async createHr(newHr: CreateHrDto, role: UserRole) {
