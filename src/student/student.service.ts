@@ -35,20 +35,24 @@ export class StudentService {
     };
   }
 
-  async findAllToHr(currentPage: number = 1) {
-    const maxPerPage = 3;
-    const [activeStudents, countStudents] =
-      await this.studentEntity.findAndCount({
-        where: { isActive: true, status: StudentStatus.Available },
-        relations: ['profile', 'user'],
-        skip: maxPerPage * (currentPage - 1),
-        take: maxPerPage,
-      });
-    const totalPages = Math.ceil(countStudents / maxPerPage);
+  async findAllToHr(hrUser: User) {
+    const user = await this.userEntity.findOne({
+      where: { id: hrUser.id },
+      relations: ['hr'],
+    });
+    const students = await this.userEntity.find({
+      where: {
+        student: {
+          hr: {
+            id: user.hr.id,
+          },
+        },
+      },
+      relations: ['student', 'student.profile'],
+    });
 
     return {
-      activeStudents,
-      totalPages,
+      students: students,
     };
   }
 
@@ -143,16 +147,15 @@ export class StudentService {
         },
       );
     }
-    // queryBuilder.andWhere('student.isActive = :isActive', { isActive: true });
-    // queryBuilder.andWhere('student.status != :status', {
-    //   status: StudentStatus.Employed,
-    // });
+    queryBuilder.andWhere('student.isActive = :isActive', { isActive: true });
+    queryBuilder.andWhere('student.status != :status ', {
+      status: StudentStatus.InInterview,
+    });
     const students = await queryBuilder.getMany();
 
     const studentsCount = await queryBuilder.getCount();
 
     const lastPage = Math.ceil(studentsCount / limit);
-
     return {
       studentsCount,
       lastPage,
