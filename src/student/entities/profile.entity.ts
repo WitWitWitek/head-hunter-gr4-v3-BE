@@ -14,7 +14,7 @@ import {
 } from 'src/types';
 
 @Entity('profile')
-@Unique(['githubUsername'])
+// @Unique(['githubUsername'])
 export class Profile implements StudentProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
