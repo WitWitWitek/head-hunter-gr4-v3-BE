@@ -99,12 +99,14 @@ To check BE in use, remember to download the server from the link and run it acc
 
 
 ## Contributors
-List the team members who contributed to this project. You can format it as a simple list or provide more details like roles or contact information.
+Team members from both repositories FE & BE
 
-- Contributor 1
-- Contributor 2
-- Contributor 3
-- ...
+- [WitWitWitek](https://github.com/WitWitWitek)
+- [PmitPoland](https://github.com/PmitPoland)
+- [wiesienk](https://github.com/wiesienk)
+- [Insterek](https://github.com/Insterek)
+- [kozerka](https://github.com/kozerka)
+
 
 ## License
 
