@@ -72,48 +72,42 @@ export class StudentService {
       .take(limit)
       .skip((page - 1) * limit);
 
-    if (filterHr.courseCompletion && filterHr.courseCompletion.length > 0) {
-      queryBuilder.andWhere(
-        'student.courseCompletion IN (:...courseCompletion)',
-        {
-          courseCompletion: filterHr.courseCompletion,
-        },
-      );
+    if (filterHr.courseCompletion) {
+      queryBuilder.andWhere('student.courseCompletion >= :courseCompletion ', {
+        courseCompletion: filterHr.courseCompletion,
+      });
     }
 
-    if (filterHr.courseEngagement && filterHr.courseEngagement.length > 0) {
-      queryBuilder.andWhere(
-        'student.courseEngagement IN (:...courseEngagement)',
-        {
-          courseEngagement: filterHr.courseEngagement,
-        },
-      );
+    if (filterHr.courseEngagement) {
+      queryBuilder.andWhere('student.courseEngagement >= :courseEngagement', {
+        courseEngagement: filterHr.courseEngagement,
+      });
     }
 
-    if (filterHr.projectDegree && filterHr.projectDegree.length > 0) {
-      queryBuilder.andWhere('student.projectDegree IN (:...projectDegree)', {
+    if (filterHr.projectDegree) {
+      queryBuilder.andWhere('student.projectDegree >= :projectDegree', {
         projectDegree: filterHr.projectDegree,
       });
     }
 
-    if (filterHr.teamProjectDegree && filterHr.teamProjectDegree.length > 0) {
+    if (filterHr.teamProjectDegree) {
+      queryBuilder.andWhere('student.teamProjectDegree >= :teamProjectDegree', {
+        teamProjectDegree: filterHr.teamProjectDegree,
+      });
+    }
+
+    if (filterHr.expectedTypeWork && filterHr.expectedTypeWork.length > 0) {
       queryBuilder.andWhere(
-        'student.teamProjectDegree IN (:...teamProjectDegree)',
+        'profile.expectedTypeWork IN (:...expectedTypeWork)',
         {
-          teamProjectDegree: filterHr.teamProjectDegree,
+          expectedTypeWork: filterHr.expectedTypeWork,
         },
       );
     }
 
-    if (filterHr.expectedTypeWork) {
-      queryBuilder.andWhere('profile.expectedTypeWork = :expectedTypeWork', {
-        expectedTypeWork: filterHr.expectedTypeWork,
-      });
-    }
-
     if (filterHr.expectedContractType) {
       queryBuilder.andWhere(
-        'profile.expectedContractType = :expectedContractType',
+        'profile.expectedContractType IN (:...expectedContractType)',
         {
           expectedContractType: filterHr.expectedContractType,
         },
