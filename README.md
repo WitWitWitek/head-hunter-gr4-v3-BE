@@ -1,73 +1,126 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Head Hunter Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This part of the Head Hunter application is a capstone project for the Mega K course, 3rd edition, designed to evaluate group performance in a Scrum framework. It supports the main application's goal of connecting HR professionals with IT job seekers, focusing on showcasing the skills and competencies of the course's participants.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Live 
 
-## Description
+[HEAD HUNTER LIVE](https://head-hunter-ynt4.onrender.com/)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🖥️ Technology Stack
 
-## Installation
+![NestJS Logo](https://img.shields.io/badge/NestJS-E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white) ![TypeORM](https://img.shields.io/badge/TypeORM-ff6b6b.svg?style=for-the-badge&logo=typeorm&logoColor=white) ![JWT](https://img.shields.io/badge/JWT-000000.svg?style=for-the-badge&logo=JSONWebTokens&logoColor=white) ![Passport](https://img.shields.io/badge/Passport-34E27A.svg?style=for-the-badge&logo=Passport&logoColor=white) ![MySQL](https://img.shields.io/badge/MySQL-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-339933.svg?style=for-the-badge&logo=nodedotjs&logoColor=white)
 
-```bash
-$ npm install
-```
+##  Business Objective
 
-## Running the app
+### Purpose
+This application simplifies connecting HR departments, including headhunters, with individuals seeking IT jobs. It serves multiple functions:
+- Enables Mega K students (referred to as "Students") to showcase their skills in a unified manner.
+- Assists HR professionals in easily finding suitable job candidates, conducting interviews, and proposing collaboration.
+- Allows administrators to manage access to the student database.
+- Complements the job market, particularly for Mega K students, without directly competing with job portals.
 
-```bash
-# development
-$ npm run start
+### Business Model
+- **Administrator Control**: Admins regulate access to the student database, thereby controlling the quantity of CVs downloaded by each HR user.
 
-# watch mode
-$ npm run start:dev
+### Target Audience
+- **Students**: Young programmers who are the central focus of the application.
+- **HR Professionals**: Looking to hire IT talent.
+- **Administrators**: Overseeing student database access and HR user management.
 
-# production mode
-$ npm run start:prod
-```
+## Application Workflow
 
-## Test
+### Student Profile Management
+- **Import and Registration**: Admins import a list of students from a CSV or JSON file. Each student receives a registration link.
+- **Profile Completion**: Students fill in their profiles during or after registration, with certain fields being optional.
 
-```bash
-# unit tests
-$ npm run test
+### HR Operations
+- **Adding HR Users**: Admins add HR users, setting specific parameters. Post-registration, HR users view a table with partial student information.
+- **Student Selection for Interviews**: HR can select students for interviews. Their capacity to add students to the "Interview" list is limited.A key feature for HR is an advanced filtering form that allows specifying student parameters such as course grades, preferred employment type, and expected salary.
 
-# e2e tests
-$ npm run test:e2e
+### Interview and Hiring Process
+- **Interview List Review**: HR has access to a "Candidates for Interview" tab. Each candidate's entry includes additional text and three action buttons.
+- **Hiring Decisions**: Decisions made by HR are communicated to admins. Unselected candidates are returned to the available pool.
 
-# test coverage
-$ npm run test:cov
-```
+## System Roles
 
-## Support
+- **Admin**: Authorized to add HR users and import students. Assumes a singular role, manually added to the database with password management capabilities.
+- **Student**: Completes and updates their profile, which is then accessible to HR for potential employment opportunities.
+- **HR**: Works in HR or as a headhunter, accessing student profiles subject to settings and limits imposed by the admin.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Getting Started 
 
-## Stay in touch
+To get the backend up and running:
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. **Clone the repository**:
+   ```bash
+   git clone [Repo-URL]
+   ```
+
+2. **Navigate to the project directory**:
+   ```bash
+   cd [Repo-Name]
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+4. **Run the application**:
+   - Start the app in development mode: `npm run start:dev`
+   - Build the app: `npm run build`
+   - Start the built app: `npm run start`
+   - Start in debug mode: `npm run start:debug`
+   - Start in production mode: `npm run start:prod`
+   
+
+5. **Environment Variables**: Create a `.env` file in the root of your project and add the following variables:
+   ```
+   MYSQL_HOST=
+   MYSQL_PORT=
+   MYSQL_USER=
+   MYSQL_PASSWORD=
+   MYSQL_DATABASE=
+
+   ACCESS_TOKEN_SECRET=
+   REFRESH_TOKEN_SECRET=
+   CONFIRMATION_TOKEN_SECRET=
+
+   EMAIL_IP=
+   EMAIL_USER=
+   EMAIL_PASSWORD=
+   EMAIL_ADDRESS=
+   EMAIL_SECRET=
+   ```
+   
+
+To check BE in use, remember to download the server from the link and run it according to the instructions provided 
+[go to FE repository](https://github.com/WitWitWitek/head-hunter-gr4-v3-FE)
+
+
+## Contributors
+Team members from both repositories FE & BE
+
+- [WitWitWitek](https://github.com/WitWitWitek)
+- [PmitPoland](https://github.com/PmitPoland)
+- [wiesienk](https://github.com/wiesienk)
+- [Insterek](https://github.com/Insterek)
+- [kozerka](https://github.com/kozerka)
+
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the MIT License. The MIT License is a permissive free software license originating at the Massachusetts Institute of Technology (MIT). It puts only very limited restriction on reuse and has, therefore, high license compatibility.
+
+
+##  What We Learned
+
+In the process of developing this project, our team navigated various challenges that provided valuable lessons in teamwork, especially under difficult conditions such as remote collaboration and time constraints. Key takeaways include:
+
+- **Effective Communication**: Learning to communicate clearly and efficiently was crucial for remote teamwork.
+- **Time Management**: Balancing different time zones and personal schedules taught us the importance of time management.
+- **Flexibility and Adaptation**: Adapting to unforeseen challenges and being flexible in our approach was vital.
+- **Collaboration Tools**: Utilizing various digital tools enhanced our ability to work together despite being remote.
+- **Team Cohesion**: Despite the distance, we learned to work as a cohesive unit, supporting and learning from each other.
+
+This project not only helped us enhance our technical skills but also strengthened our capabilities in working as a part of a diverse, distributed team.
