@@ -58,6 +58,7 @@ export class StudentService {
 
   async findFilteredToHr(
     filterHr: FilterHrDto,
+    search: string,
     page: number,
     limit: number,
   ): Promise<{
@@ -71,6 +72,13 @@ export class StudentService {
       .leftJoinAndSelect('student.profile', 'profile')
       .take(limit)
       .skip((page - 1) * limit);
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(profile.firstName Like :search OR profile.lastName Like :search)',
+        { search: `%${search}%` },
+      );
+    }
 
     if (filterHr.courseCompletion) {
       queryBuilder.andWhere('student.courseCompletion >= :courseCompletion ', {

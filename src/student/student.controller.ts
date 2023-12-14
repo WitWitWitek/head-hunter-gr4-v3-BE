@@ -64,11 +64,13 @@ export class StudentController {
   @Post('hrstudentlist')
   findFilteredToHr(
     @Body() filterHr: FilterHrDto,
+    @Query('search') search: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
     return this.studentService.findFilteredToHr(
       filterHr,
+      search,
       page ? page : 1,
       limit ? limit : 10,
     );
