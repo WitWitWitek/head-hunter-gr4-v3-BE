@@ -10,7 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto';
 import { Response, Request } from 'express';
-import { RefreshTokenGuard } from './guard/refresh-token.guard';
+import { RefreshTokenGuard } from 'src/shared/guards';
 
 @Controller('auth')
 export class AuthController {

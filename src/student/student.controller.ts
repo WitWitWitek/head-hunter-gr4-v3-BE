@@ -14,10 +14,9 @@ import { StudentService } from './student.service';
 import { UpdatetudentProfileDto } from './dto/update-student.dto';
 import { StudentStatus } from '../types/students';
 import { FilterHrDto } from './dto/filter-hr.dto';
-import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
+import { AccessTokenGuard, RolesGuard } from 'src/shared/guards';
 import { UserRole } from 'src/types';
 import { Roles } from 'src/shared/decorators/roles.decorator';
-import { RolesGuard } from 'src/shared/guards/roles.guard';
 import { Request } from 'express';
 import { User } from 'src/user/entities/user.entity';
 
