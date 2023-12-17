@@ -4,7 +4,6 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { Student } from '../student/entities/student.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateStudentDto, UserRole } from 'src/types';
 import { In } from 'typeorm';
 import { MailService } from '../mail/mail.service';
@@ -126,14 +125,6 @@ export class UserService {
     };
   }
 
-  findAll() {
-    return this.userEntity.find();
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
   async findOneByEmail(email: string): Promise<User> {
     return this.userEntity.findOne({
       where: {
@@ -166,10 +157,6 @@ export class UserService {
     await userToUpdate.save();
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
   updateLoginToken(id: string, hashedRefreshToken?: string) {
     return this.userEntity
       .createQueryBuilder()
@@ -179,9 +166,5 @@ export class UserService {
         id,
       })
       .execute();
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }

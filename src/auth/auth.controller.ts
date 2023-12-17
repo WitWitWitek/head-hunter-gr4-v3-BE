@@ -11,6 +11,8 @@ import { AuthService } from './auth.service';
 import { SignInDto } from './dto';
 import { Response, Request } from 'express';
 import { RefreshTokenGuard } from 'src/shared/guards';
+import { GetUser } from 'src/shared/decorators';
+import { User } from 'src/user/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -23,8 +25,8 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Get('sign-out')
-  signOut(@Req() req: Request, @Res() res: Response) {
-    return this.authService.signOut(req, res);
+  signOut(@GetUser() user: User, @Res() res: Response) {
+    return this.authService.signOut(user, res);
   }
 
   @UseGuards(RefreshTokenGuard)

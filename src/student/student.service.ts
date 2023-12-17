@@ -234,8 +234,4 @@ export class StudentService {
 
     return 'Zmieniono status na zatrudniony';
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} student`;
-  }
 }

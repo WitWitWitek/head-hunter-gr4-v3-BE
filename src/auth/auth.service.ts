@@ -65,8 +65,8 @@ export class AuthService {
     };
   }
 
-  async signOut(req: Request, res: Response) {
-    const { id } = req.user as User;
+  async signOut(user: User, res: Response) {
+    const { id } = user;
     await this.updateHashLoginToken(id);
     return res
       .clearCookie(TokenName.refresh_token, {
