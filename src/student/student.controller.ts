@@ -18,13 +18,13 @@ import { Roles } from 'src/shared/decorators/roles.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { GetUser } from 'src/shared/decorators';
 
+@UseGuards(AccessTokenGuard)
 @Controller('student')
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
   @Roles(UserRole.Student)
   @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Patch(':studentId')
   updateProfile(
     @Body() updateProfile: UpdatetudentProfileDto,
@@ -53,7 +53,6 @@ export class StudentController {
 
   @Roles(UserRole.HR)
   @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Post('hrstudentlist')
   findFilteredToHr(
     @Body() filterHr: FilterHrDto,
@@ -69,7 +68,6 @@ export class StudentController {
     );
   }
 
-  @UseGuards(AccessTokenGuard)
   @Get('/get-one')
   findOne(@GetUser() user: User) {
     return this.studentService.findOne(user);

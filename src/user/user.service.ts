@@ -69,6 +69,10 @@ export class UserService {
 
     const hashedPassword = await hashData(password);
 
+    const existingUser = this.userEntity.findOne({ where: { email } });
+    if (existingUser) {
+      throw new BadRequestException(`Email: ${email} już istnieje!`);
+    }
     const adminUser = new User();
     adminUser.password = hashedPassword;
     adminUser.email = email;

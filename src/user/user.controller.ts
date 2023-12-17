@@ -9,15 +9,15 @@ import { ConfirmationTokenGuard } from '../shared/guards/confirmation-token.guar
 import { User } from './entities/user.entity';
 import { ConfirmUserDto } from './dto/confirm-student.dto';
 import { CreateHrDto } from 'src/hr/dto/create-hr.dto';
-import { GetUser } from 'src/shared/decorators';
+import { GetUser, Public } from 'src/shared/decorators';
 
+@UseGuards(AccessTokenGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Roles(UserRole.Admin)
   @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Post('/add-student')
   createStudent(@Body() createStudentDto: CreateStudentDto) {
     return this.userService.createStudent(createStudentDto, UserRole.Student);
@@ -25,7 +25,6 @@ export class UserController {
 
   @Roles(UserRole.Admin)
   @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Post('/add-hr')
   createHr(@Body() createHrDto: CreateHrDto) {
     return this.userService.createHr(createHrDto, UserRole.HR);
@@ -33,12 +32,12 @@ export class UserController {
 
   @Roles(UserRole.Admin)
   @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Post('/add-admin')
   createAdmin(@Body() createUserDto: CreateUserDto) {
     return this.userService.createAdmin(createUserDto);
   }
 
+  @Public()
   @UseGuards(ConfirmationTokenGuard)
   @Patch('/confirm/:confirmation_token')
   confirmUser(

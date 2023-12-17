@@ -13,21 +13,18 @@ import { AccessTokenGuard } from 'src/shared/guards';
 import { RolesGuard } from 'src/shared/guards/roles.guard';
 import { User } from 'src/user/entities/user.entity';
 
+@Roles(UserRole.HR)
+@UseGuards(RolesGuard)
+@UseGuards(AccessTokenGuard)
 @Controller('hr')
 export class HrController {
   constructor(private readonly hrService: HrService) {}
 
-  @Roles(UserRole.HR)
-  @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Get('/interviews')
   findAll(@GetUser() user: User) {
     return this.hrService.getAllStudents(user);
   }
 
-  @Roles(UserRole.HR)
-  @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Patch('/interviews/:studentId')
   addStudentToInterviewList(
     @GetUser() user: User,
@@ -36,9 +33,6 @@ export class HrController {
     return this.hrService.addStudentToInterviewList(user.id, studentId);
   }
 
-  @Roles(UserRole.HR)
-  @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Delete('/interviews/:studentId')
   removeStudentFromHr(
     @GetUser() user: User,
