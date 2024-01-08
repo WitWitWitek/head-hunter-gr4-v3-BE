@@ -24,7 +24,7 @@ export class AuthService {
     const passwordMatch = await verifyHashedData(password, user.password);
 
     if (!passwordMatch) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Błędne hasło.');
     }
 
     const access_token = await this.tokenService.signToken(
@@ -80,7 +80,7 @@ export class AuthService {
   async validateUserByEmail(email: string) {
     const user = await this.userService.findOneByEmail(email);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Użytkownik nie istnieje!');
     }
     return user;
   }
