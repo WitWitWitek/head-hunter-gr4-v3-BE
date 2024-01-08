@@ -6,6 +6,7 @@ import { TokenName } from 'src/types';
 import { Request, Response } from 'express';
 import { User } from 'src/user/entities/user.entity';
 import { TokenService } from 'src/token/token.service';
+import { extractUserData } from 'src/utils';
 
 @Injectable()
 export class AuthService {
@@ -50,7 +51,12 @@ export class AuthService {
         secure: true,
         maxAge: 12 * 60 * 60 * 1000,
       })
-      .json({ role: user.role, relatedEntityId, access_token });
+      .json({
+        role: user.role,
+        userData: extractUserData(user),
+        relatedEntityId,
+        access_token,
+      });
   }
 
   async refresh(req: Request) {
