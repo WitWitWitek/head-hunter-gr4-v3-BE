@@ -30,4 +30,16 @@ export class MailService {
       },
     });
   }
+
+  async sendNewUserPassword(user: User, password: string) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Welcome to Head Hunter! Confirm your account and email',
+      template: './remind-password',
+      context: {
+        username: user.email,
+        password,
+      },
+    });
+  }
 }

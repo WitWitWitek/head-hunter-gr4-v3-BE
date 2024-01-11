@@ -161,6 +161,38 @@ export class UserService {
     await userToUpdate.save();
   }
 
+  async remindPassword(email: string) {
+    const user = await this.userEntity.findOne({ where: { email } });
+    const newPassword = this.generateNewPassword();
+
+    user.password = await hashData(newPassword);
+    user.save();
+
+    await this.mailService.sendNewUserPassword(user, newPassword);
+
+    return {
+      message: `Email to ${user.email} with new password has been sent`,
+    };
+  }
+
+  generateNewPassword(): string {
+    const PASSWORD_REGEXP =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])(?=.{8,})/;
+    const characters =
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=';
+
+    let password = '';
+    for (let i = 0; i < 10; i++) {
+      password += characters.charAt(
+        Math.floor(Math.random() * characters.length),
+      );
+    }
+
+    return PASSWORD_REGEXP.test(password)
+      ? password
+      : this.generateNewPassword();
+  }
+
   updateLoginToken(id: string, hashedRefreshToken?: string) {
     return this.userEntity
       .createQueryBuilder()
