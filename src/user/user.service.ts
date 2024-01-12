@@ -164,6 +164,9 @@ export class UserService {
 
   async remindPassword(email: string) {
     const user = await this.userEntity.findOne({ where: { email } });
+    if (!user) {
+      throw new BadRequestException('Użytkownik nie istnieje!');
+    }
     const newPassword = this.generateNewPassword();
 
     user.password = await hashData(newPassword);
@@ -172,7 +175,7 @@ export class UserService {
     await this.mailService.sendNewUserPassword(user, newPassword);
 
     return {
-      message: `Email to ${user.email} with new password has been sent`,
+      message: `Email do ${user.email} zawierający nowe hasło wysłany.`,
     };
   }
 
