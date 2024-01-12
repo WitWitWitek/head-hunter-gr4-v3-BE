@@ -48,7 +48,7 @@ export class UserController {
     return this.userService.confirmUser(user, confirmStudentDto.password);
   }
 
-  @Post('/update-password')
+  @Patch('/update-password')
   updatePassword(
     @Body() updatePasswordDto: UpdatePasswordDto,
     @GetUser() user: User,
@@ -57,7 +57,7 @@ export class UserController {
   }
 
   @Public()
-  @Post('/remind-password')
+  @Patch('/remind-password')
   remindPassword(@Body() remindPasswordDto: RemindPasswordDto) {
     return this.userService.remindPassword(remindPasswordDto.email);
   }
