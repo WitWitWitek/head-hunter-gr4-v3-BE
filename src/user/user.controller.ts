@@ -10,7 +10,7 @@ import { User } from './entities/user.entity';
 import { ConfirmUserDto } from './dto/confirm-student.dto';
 import { CreateHrDto } from 'src/hr/dto/create-hr.dto';
 import { GetUser, Public } from 'src/shared/decorators';
-import { RemindPasswordDto } from './dto/remind-password.dto';
+import { RemindPasswordDto, UpdatePasswordDto } from './dto/user-password.dto';
 
 @UseGuards(AccessTokenGuard)
 @Controller('user')
@@ -46,6 +46,14 @@ export class UserController {
     @GetUser() user: User,
   ) {
     return this.userService.confirmUser(user, confirmStudentDto.password);
+  }
+
+  @Post('/update-password')
+  updatePassword(
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @GetUser() user: User,
+  ) {
+    return this.userService.updateUserPassword(user, updatePasswordDto);
   }
 
   @Public()

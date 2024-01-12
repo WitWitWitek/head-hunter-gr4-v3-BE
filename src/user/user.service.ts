@@ -3,13 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { Student } from '../student/entities/student.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { CreateStudentDto, UserRole } from 'src/types';
+import { PASSWORD_REGEXP, UserRole } from 'src/types';
 import { In } from 'typeorm';
 import { MailService } from '../mail/mail.service';
-import { hashData } from '../utils';
+import { hashData, verifyHashedData } from '../utils';
 import { Hr } from '../hr/entities/hr.entity';
 import { CreateHrDto } from '../hr/dto/create-hr.dto';
+import { UpdatePasswordDto, CreateUserDto } from './dto';
+import { CreateStudentDto } from 'src/student/dto/create-student.dto';
 
 @Injectable()
 export class UserService {
@@ -175,9 +176,22 @@ export class UserService {
     };
   }
 
+  async updateUserPassword(user: User, updatePasswordDto: UpdatePasswordDto) {
+    const { newPassword, oldPassword } = updatePasswordDto;
+
+    const passwordsMatch = await verifyHashedData(oldPassword, user.password);
+    if (!passwordsMatch) {
+      throw new BadRequestException('Aktualne hasło jest niepoprawne!');
+    }
+
+    user.password = await hashData(newPassword);
+    await this.userEntity.save(user);
+    return {
+      message: `Hasło użytkownika ${user.email} zostało zaktualizowane.`,
+    };
+  }
+
   generateNewPassword(): string {
-    const PASSWORD_REGEXP =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])(?=.{8,})/;
     const characters =
       'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=';
 
