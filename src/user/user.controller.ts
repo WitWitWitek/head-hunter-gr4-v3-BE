@@ -7,8 +7,8 @@ import { AccessTokenGuard, RolesGuard } from 'src/shared/guards';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { ConfirmationTokenGuard } from '../shared/guards/confirmation-token.guard';
 import { User } from './entities/user.entity';
-import { ConfirmUserDto } from './dto/confirm-student.dto';
-import { CreateHrDto } from 'src/hr/dto/create-hr.dto';
+import { ConfirmUserDto } from './dto';
+import { CreateHrDto } from 'src/hr/dto';
 import { GetUser, Public } from 'src/shared/decorators';
 import { RemindPasswordDto, UpdatePasswordDto } from './dto/user-password.dto';
 

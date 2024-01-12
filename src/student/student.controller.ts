@@ -9,9 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { StudentService } from './student.service';
-import { UpdatetudentProfileDto } from './dto/update-student.dto';
 import { StudentStatus } from '../types/students';
-import { FilterHrDto } from './dto/filter-hr.dto';
+import { FilterHrDto, UpdatetudentProfileDto } from './dto';
 import { AccessTokenGuard, RolesGuard } from 'src/shared/guards';
 import { UserRole } from 'src/types';
 import { Roles } from 'src/shared/decorators/roles.decorator';
