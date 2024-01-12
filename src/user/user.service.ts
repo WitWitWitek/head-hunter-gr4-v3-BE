@@ -70,7 +70,7 @@ export class UserService {
 
     const hashedPassword = await hashData(password);
 
-    const existingUser = this.userEntity.findOne({ where: { email } });
+    const existingUser = await this.findOneByEmail(email);
     if (existingUser) {
       throw new BadRequestException(`Email: ${email} już istnieje!`);
     }
@@ -95,20 +95,16 @@ export class UserService {
 
     await this.userEntity.save(user);
     return {
-      message: `${user.email} successfully confirmed`,
+      message: `${user.email} pomyślnie zweryfikowany.`,
     };
   }
 
   async createHr(newHr: CreateHrDto, role: UserRole) {
-    const existingHr = await this.userEntity.findOne({
-      where: {
-        email: newHr.email,
-        role: role,
-      },
-    });
-    if (existingHr) {
+    const existingHr = await this.findOneByEmail(newHr.email);
+
+    if (existingHr && existingHr.role === UserRole.HR) {
       throw new BadRequestException(
-        `Użytkownik z emailem: ${existingHr.email} istnieje!`,
+        `Użytkownik z emailem: ${existingHr.email} już istnieje!`,
       );
     }
 
@@ -140,20 +136,12 @@ export class UserService {
   }
 
   async updateUserEmail(oldEmail: string, newEmail: string) {
-    const foundUser = await this.userEntity.findOne({
-      where: {
-        email: newEmail,
-      },
-    });
+    const foundUser = await this.findOneByEmail(newEmail);
     if (foundUser) {
       throw new BadRequestException('Użytkownik o takim mailu juz istnieje!');
     }
 
-    const userToUpdate = await this.userEntity.findOne({
-      where: {
-        email: oldEmail,
-      },
-    });
+    const userToUpdate = await this.findOneByEmail(oldEmail);
     if (!userToUpdate) {
       throw new BadRequestException('Użytkownik o takim mailu nie istnieje!');
     }
@@ -163,7 +151,7 @@ export class UserService {
   }
 
   async remindPassword(email: string) {
-    const user = await this.userEntity.findOne({ where: { email } });
+    const user = await this.findOneByEmail(email);
     if (!user) {
       throw new BadRequestException('Użytkownik nie istnieje!');
     }
