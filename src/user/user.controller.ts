@@ -2,7 +2,6 @@ import { Controller, Post, Body, Patch, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRole } from 'src/types';
-import { CreateStudentDto } from '../student/dto/create-student.dto';
 import { AccessTokenGuard, RolesGuard } from 'src/shared/guards';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { ConfirmationTokenGuard } from '../shared/guards/confirmation-token.guard';
@@ -11,6 +10,7 @@ import { ConfirmUserDto } from './dto';
 import { CreateHrDto } from 'src/hr/dto';
 import { GetUser, Public } from 'src/shared/decorators';
 import { RemindPasswordDto, UpdatePasswordDto } from './dto/user-password.dto';
+import { StudentDto } from 'src/student/dto';
 
 @UseGuards(AccessTokenGuard)
 @Controller('user')
@@ -20,7 +20,7 @@ export class UserController {
   @Roles(UserRole.Admin)
   @UseGuards(RolesGuard)
   @Post('/add-student')
-  createStudent(@Body() createStudentDto: CreateStudentDto) {
+  createStudent(@Body() createStudentDto: StudentDto) {
     return this.userService.createStudent(createStudentDto, UserRole.Student);
   }
 

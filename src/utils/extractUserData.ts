@@ -8,16 +8,17 @@ export const extractUserData = (
   github: string | null;
 } => {
   if (user.student) {
+    const firstName = user?.student?.profile?.firstName ?? null;
+    const lastName = user?.student?.profile?.lastName ?? null;
     return {
       email: user.email,
-      username:
-        user.student.profile.firstName + ' ' + user.student.profile.lastName,
-      github: user.student.profile.githubUsername,
+      username: firstName && lastName ? firstName + ' ' + lastName : null,
+      github: user?.student?.profile?.githubUsername ?? null,
     };
   } else if (user.hr) {
     return {
       email: user.email,
-      username: user.hr.fullName,
+      username: user.hr.fullName ?? null,
       github: null,
     };
   } else {
