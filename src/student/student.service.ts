@@ -182,10 +182,26 @@ export class StudentService {
   ) {
     const student: Student = await this.studentEntity.findOne({
       where: { id: studentId },
+      relations: ['profile'],
     });
     if (!student) {
       throw new BadRequestException(
         `Nie mamy w bazie studenta o id: ${studentId}.`,
+      );
+    }
+
+    const foundGitHubProfile = await this.profileEntity.findOne({
+      where: {
+        githubUsername: updateProfileDto.githubUsername,
+      },
+    });
+
+    if (
+      foundGitHubProfile &&
+      foundGitHubProfile.githubUsername !== student.profile.githubUsername
+    ) {
+      throw new BadRequestException(
+        `Profil z GitHub o nazwie ${updateProfileDto.githubUsername} już istnieje!`,
       );
     }
 
@@ -233,9 +249,5 @@ export class StudentService {
     );
 
     return 'Zmieniono status na zatrudniony';
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} student`;
   }
 }

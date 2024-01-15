@@ -15,7 +15,7 @@ import { HrModule } from '../hr/hr.module';
 import { HrController } from '../hr/hr.controller';
 import { HrService } from '../hr/hr.service';
 import { Hr } from '../hr/entities/hr.entity';
-import { ConfirmationTokenStrategy } from './strategy';
+import { ConfirmationTokenStrategy } from '../token/strategies';
 import { AuthService } from 'src/auth/auth.service';
 
 @Module({

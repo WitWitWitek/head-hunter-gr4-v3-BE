@@ -5,50 +5,39 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { HrService } from './hr.service';
-import { Roles } from 'src/shared/decorators/roles.decorator';
+import { Roles, GetUser } from 'src/shared/decorators';
 import { UserRole } from 'src/types';
-import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
+import { AccessTokenGuard } from 'src/shared/guards';
 import { RolesGuard } from 'src/shared/guards/roles.guard';
-import { Request } from 'express';
 import { User } from 'src/user/entities/user.entity';
 
+@Roles(UserRole.HR)
+@UseGuards(RolesGuard)
+@UseGuards(AccessTokenGuard)
 @Controller('hr')
 export class HrController {
   constructor(private readonly hrService: HrService) {}
 
-  @Roles(UserRole.HR)
-  @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Get('/interviews')
-  findAll(@Req() req: Request) {
-    const hrUser = req.user as User;
-    return this.hrService.getAllStudents(hrUser);
+  findAll(@GetUser() user: User) {
+    return this.hrService.getAllStudents(user);
   }
 
-  @Roles(UserRole.HR)
-  @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Patch('/interviews/:studentId')
   addStudentToInterviewList(
-    @Req() req: Request,
+    @GetUser() user: User,
     @Param('studentId') studentId: string,
   ) {
-    const hr = req.user as User;
-    return this.hrService.addStudentToInterviewList(hr.id, studentId);
+    return this.hrService.addStudentToInterviewList(user.id, studentId);
   }
 
-  @Roles(UserRole.HR)
-  @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
   @Delete('/interviews/:studentId')
   removeStudentFromHr(
-    @Req() req: Request,
+    @GetUser() user: User,
     @Param('studentId') studentId: string,
   ) {
-    const hr = req.user as User;
-    return this.hrService.removeStudentFromHr(hr.id, studentId);
+    return this.hrService.removeStudentFromHr(user.id, studentId);
   }
 }

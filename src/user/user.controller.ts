@@ -1,76 +1,64 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Body, Patch, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from 'src/types';
-import { CreateStudentDto } from '../student/dto/create-student.dto';
-import { AccessTokenGuard } from 'src/auth/guard/access-token.guard';
+import { AccessTokenGuard, RolesGuard } from 'src/shared/guards';
 import { Roles } from 'src/shared/decorators/roles.decorator';
-import { RolesGuard } from 'src/shared/guards/roles.guard';
-import { ConfirmationTokenGuard } from './guard/confirmation-token.guard';
-import { Request } from 'express';
+import { ConfirmationTokenGuard } from '../shared/guards/confirmation-token.guard';
 import { User } from './entities/user.entity';
-import { ConfirmUserDto } from './dto/confirm-student.dto';
-import { CreateHrDto } from 'src/hr/dto/create-hr.dto';
+import { ConfirmUserDto } from './dto';
+import { CreateHrDto } from 'src/hr/dto';
+import { GetUser, Public } from 'src/shared/decorators';
+import { RemindPasswordDto, UpdatePasswordDto } from './dto/user-password.dto';
+import { StudentDto } from 'src/student/dto';
 
+@UseGuards(AccessTokenGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Roles(UserRole.Admin)
+  @UseGuards(RolesGuard)
   @Post('/add-student')
-  createStudent(@Body() createStudentDto: CreateStudentDto) {
+  createStudent(@Body() createStudentDto: StudentDto) {
     return this.userService.createStudent(createStudentDto, UserRole.Student);
   }
 
+  @Roles(UserRole.Admin)
+  @UseGuards(RolesGuard)
   @Post('/add-hr')
   createHr(@Body() createHrDto: CreateHrDto) {
     return this.userService.createHr(createHrDto, UserRole.HR);
   }
 
+  @Roles(UserRole.Admin)
+  @UseGuards(RolesGuard)
   @Post('/add-admin')
   createAdmin(@Body() createUserDto: CreateUserDto) {
     return this.userService.createAdmin(createUserDto);
   }
 
+  @Public()
   @UseGuards(ConfirmationTokenGuard)
   @Patch('/confirm/:confirmation_token')
-  confirmUser(@Req() req: Request, @Body() confirmStudentDto: ConfirmUserDto) {
-    return this.userService.confirmUser(
-      req.user as User,
-      confirmStudentDto.password,
-    );
+  confirmUser(
+    @Body() confirmStudentDto: ConfirmUserDto,
+    @GetUser() user: User,
+  ) {
+    return this.userService.confirmUser(user, confirmStudentDto.password);
   }
 
-  @Roles(UserRole.Admin)
-  @UseGuards(RolesGuard)
-  @UseGuards(AccessTokenGuard)
-  @Get('/me')
-  findAll() {
-    return this.userService.findAll();
+  @Patch('/update-password')
+  updatePassword(
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @GetUser() user: User,
+  ) {
+    return this.userService.updateUserPassword(user, updatePasswordDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @Public()
+  @Patch('/remind-password')
+  remindPassword(@Body() remindPasswordDto: RemindPasswordDto) {
+    return this.userService.remindPassword(remindPasswordDto.email);
   }
 }

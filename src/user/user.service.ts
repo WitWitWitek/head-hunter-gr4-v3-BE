@@ -3,14 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { Student } from '../student/entities/student.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateStudentDto, UserRole } from 'src/types';
-import { In } from 'typeorm';
+import { PASSWORD_REGEXP, UserRole } from 'src/types';
 import { MailService } from '../mail/mail.service';
-import { hashData } from '../utils';
+import { hashData, verifyHashedData } from '../utils';
 import { Hr } from '../hr/entities/hr.entity';
 import { CreateHrDto } from '../hr/dto/create-hr.dto';
+import { UpdatePasswordDto, CreateUserDto } from './dto';
+import { StudentDto } from 'src/student/dto';
 
 @Injectable()
 export class UserService {
@@ -21,47 +20,30 @@ export class UserService {
     private mailService: MailService,
   ) {}
 
-  async createStudent(newStudents: CreateStudentDto, role: UserRole) {
-    const { students } = newStudents;
-    const emails = students.map((student) => student.email);
-    const existingStudents = await this.userEntity.find({
-      where: {
-        email: In(emails),
-      },
-    });
-
-    const existingStudentsEmails = existingStudents.map(
-      (existingStudent) => existingStudent.email,
-    );
-
-    const studentsToAdd = students.filter(
-      (newStudent) => !existingStudentsEmails.includes(newStudent.email),
-    );
-
-    const studentsEntites = studentsToAdd.map((studentDto) => {
-      const student = new Student();
-      for (const key in studentDto) {
-        student[key] = studentDto[key];
-      }
-      return student;
-    });
-    await this.studentEntity.save(studentsEntites);
-
-    const userStudentsToAdd = studentsEntites.map((student, index) => {
-      const user = new User();
-      user.email = studentsToAdd[index].email;
-      user.role = role;
-      user.student = student;
-      return user;
-    });
-    await this.userEntity.save(userStudentsToAdd);
-
-    for await (const newUser of userStudentsToAdd) {
-      await this.mailService.sendUserConfirmation(newUser);
+  async createStudent(newStudent: StudentDto, role: UserRole) {
+    const user = await this.findOneByEmail(newStudent.email);
+    if (user) {
+      throw new BadRequestException(
+        `Użytkownik z emailem: ${newStudent.email} już istnieje!`,
+      );
     }
 
+    const student = new Student();
+    for (const key in newStudent) {
+      student[key] = newStudent[key];
+    }
+    await this.studentEntity.save(student);
+
+    const userStudent = new User();
+    userStudent.email = newStudent.email;
+    userStudent.role = role;
+    userStudent.student = student;
+    await this.userEntity.save(userStudent);
+
+    await this.mailService.sendUserConfirmation(userStudent);
+
     return {
-      message: `Added ${studentsToAdd.length} of ${students.length}.`,
+      message: `Nowy student z emailem: ${newStudent.email} dodany.`,
     };
   }
 
@@ -70,6 +52,10 @@ export class UserService {
 
     const hashedPassword = await hashData(password);
 
+    const existingUser = await this.findOneByEmail(email);
+    if (existingUser) {
+      throw new BadRequestException(`Email: ${email} już istnieje!`);
+    }
     const adminUser = new User();
     adminUser.password = hashedPassword;
     adminUser.email = email;
@@ -91,20 +77,16 @@ export class UserService {
 
     await this.userEntity.save(user);
     return {
-      message: `${user.email} successfully confirmed`,
+      message: `${user.email} pomyślnie zweryfikowany.`,
     };
   }
 
   async createHr(newHr: CreateHrDto, role: UserRole) {
-    const existingHr = await this.userEntity.findOne({
-      where: {
-        email: newHr.email,
-        role: role,
-      },
-    });
-    if (existingHr) {
+    const existingHr = await this.findOneByEmail(newHr.email);
+
+    if (existingHr && existingHr.role === UserRole.HR) {
       throw new BadRequestException(
-        `Użytkownik z emailem: ${existingHr.email} istnieje!`,
+        `Użytkownik z emailem: ${existingHr.email} już istnieje!`,
       );
     }
 
@@ -126,38 +108,22 @@ export class UserService {
     };
   }
 
-  findAll() {
-    return this.userEntity.find();
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
   async findOneByEmail(email: string): Promise<User> {
     return this.userEntity.findOne({
       where: {
         email,
       },
-      relations: ['student', 'hr'],
+      relations: ['student', 'student.profile', 'hr'],
     });
   }
 
   async updateUserEmail(oldEmail: string, newEmail: string) {
-    const foundUser = await this.userEntity.findOne({
-      where: {
-        email: newEmail,
-      },
-    });
+    const foundUser = await this.findOneByEmail(newEmail);
     if (foundUser) {
       throw new BadRequestException('Użytkownik o takim mailu juz istnieje!');
     }
 
-    const userToUpdate = await this.userEntity.findOne({
-      where: {
-        email: oldEmail,
-      },
-    });
+    const userToUpdate = await this.findOneByEmail(oldEmail);
     if (!userToUpdate) {
       throw new BadRequestException('Użytkownik o takim mailu nie istnieje!');
     }
@@ -166,8 +132,52 @@ export class UserService {
     await userToUpdate.save();
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async remindPassword(email: string) {
+    const user = await this.findOneByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Użytkownik nie istnieje!');
+    }
+    const newPassword = this.generateNewPassword();
+
+    user.password = await hashData(newPassword);
+    user.save();
+
+    await this.mailService.sendNewUserPassword(user, newPassword);
+
+    return {
+      message: `Email do ${user.email} zawierający nowe hasło wysłany.`,
+    };
+  }
+
+  async updateUserPassword(user: User, updatePasswordDto: UpdatePasswordDto) {
+    const { newPassword, oldPassword } = updatePasswordDto;
+
+    const passwordsMatch = await verifyHashedData(oldPassword, user.password);
+    if (!passwordsMatch) {
+      throw new BadRequestException('Aktualne hasło jest niepoprawne!');
+    }
+
+    user.password = await hashData(newPassword);
+    await this.userEntity.save(user);
+    return {
+      message: `Hasło użytkownika ${user.email} zostało zaktualizowane.`,
+    };
+  }
+
+  generateNewPassword(): string {
+    const characters =
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=';
+
+    let password = '';
+    for (let i = 0; i < 10; i++) {
+      password += characters.charAt(
+        Math.floor(Math.random() * characters.length),
+      );
+    }
+
+    return PASSWORD_REGEXP.test(password)
+      ? password
+      : this.generateNewPassword();
   }
 
   updateLoginToken(id: string, hashedRefreshToken?: string) {
@@ -179,9 +189,5 @@ export class UserService {
         id,
       })
       .execute();
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }

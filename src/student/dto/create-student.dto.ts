@@ -1,13 +1,5 @@
 import { UserRole } from '../../types/user/user.entity';
-import {
-  IsEmail,
-  IsInt,
-  IsNotEmpty,
-  Min,
-  Max,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsEmail, IsInt, IsNotEmpty, Min, Max } from 'class-validator';
 
 export class StudentDto {
   @IsEmail()
@@ -37,12 +29,6 @@ export class StudentDto {
   teamProjectDegree: number;
 
   bonusProjectUrls: string[];
-}
-
-export class CreateStudentDto {
-  @ValidateNested()
-  @Type(() => StudentDto)
-  students: StudentDto[];
 }
 
 export class CreateUserStudentToAdd {

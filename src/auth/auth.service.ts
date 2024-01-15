@@ -6,6 +6,7 @@ import { TokenName } from 'src/types';
 import { Request, Response } from 'express';
 import { User } from 'src/user/entities/user.entity';
 import { TokenService } from 'src/token/token.service';
+import { extractUserData } from 'src/utils';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,7 @@ export class AuthService {
     const passwordMatch = await verifyHashedData(password, user.password);
 
     if (!passwordMatch) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Błędne hasło.');
     }
 
     const access_token = await this.tokenService.signToken(
@@ -50,7 +51,12 @@ export class AuthService {
         secure: true,
         maxAge: 12 * 60 * 60 * 1000,
       })
-      .json({ role: user.role, relatedEntityId, access_token });
+      .json({
+        role: user.role,
+        userData: extractUserData(user),
+        relatedEntityId,
+        access_token,
+      });
   }
 
   async refresh(req: Request) {
@@ -65,8 +71,8 @@ export class AuthService {
     };
   }
 
-  async signOut(req: Request, res: Response) {
-    const { id } = req.user as User;
+  async signOut(user: User, res: Response) {
+    const { id } = user;
     await this.updateHashLoginToken(id);
     return res
       .clearCookie(TokenName.refresh_token, {
@@ -80,7 +86,7 @@ export class AuthService {
   async validateUserByEmail(email: string) {
     const user = await this.userService.findOneByEmail(email);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Użytkownik nie istnieje!');
     }
     return user;
   }
